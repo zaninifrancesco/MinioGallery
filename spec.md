@@ -1,5 +1,3 @@
-
-
 ## Feature Specifications
 
 ### Feature 1: Upload immagine
@@ -127,4 +125,124 @@ Return List<{
 * Token scaduto → richiede re-login
 * Nessuna immagine → UI mostra messaggio amichevole
 * URL MinIO scaduto → immagine non visibile, richiesta nuovo fetch
+
+---
+
+## Componenti Backend Spring Boot
+
+Questa sezione descrive i principali componenti dell'applicazione backend Spring Boot.
+
+### 1. Entità (Model - `it.zaninifrancesco.minio_gallery.model`)
+Rappresentano i dati persistenti dell'applicazione.
+*   **`User.java`**: Entità JPA per gli utenti. Contiene informazioni come `id`, `username`, `password` (hashed), e una relazione `ManyToMany` con `Role`.
+*   **`Role.java`**: Entità JPA per i ruoli. Contiene `id` e `name` (che fa riferimento a `ERole`).
+*   **`ERole.java`**: Enum che definisce i tipi di ruolo disponibili (es. `ROLE_USER`, `ROLE_ADMIN`).
+*   **`ImageMetadata.java`**: (Da creare) Entità JPA per i metadati delle immagini. Includerà `id` (UUID), `title`, `description`, `tags` (potrebbe essere una lista di stringhe o una relazione separata), `fileName` (nome del file su MinIO, es. UUID + estensione), `bucketName`, `originalFileName`, `contentType`, `size`, `uploadTimestamp`, e una relazione `ManyToOne` con `User`.
+
+### 2. Repository (Data Access Layer - `it.zaninifrancesco.minio_gallery.repository`)
+Interfacce Spring Data JPA per interagire con il database.
+*   **`UserRepository.java`**: (Da creare) Estende `JpaRepository<User, Long>`. Include metodi per trovare utenti per username, verificare l'esistenza per username, ecc.
+*   **`RoleRepository.java`**: (Da creare) Estende `JpaRepository<Role, Integer>`. Include un metodo per trovare ruoli per nome (es. `findByName(ERole name)`).
+*   **`ImageMetadataRepository.java`**: (Da creare) Estende `JpaRepository<ImageMetadata, String>` (o `UUID` se l'ID è di tipo UUID). Include metodi per la paginazione e l'ordinamento (es. per data di caricamento).
+
+### 3. Servizi (Business Logic Layer - `it.zaninifrancesco.minio_gallery.service`)
+Contengono la logica di business dell'applicazione.
+*   **`UserDetailsServiceImpl.java`**: (Da creare) Implementa `UserDetailsService` di Spring Security per caricare i dettagli dell'utente per l'autenticazione.
+*   **`MinioService.java`**: (Da creare) Gestisce le interazioni con MinIO: upload, download, generazione di presigned URL, eliminazione file.
+*   **`ImageService.java`**: (Da creare) Gestisce la logica di business per le immagini, coordinando `ImageMetadataRepository` e `MinioService`. Include la logica per l'upload (salvataggio metadati e file), il recupero paginato delle immagini con presigned URL.
+*   **`AuthService.java`**: (Da creare, o logica integrata in `AuthController`) Gestisce la logica di autenticazione e registrazione utenti.
+
+### 4. Controller (API Layer - `it.zaninifrancesco.minio_gallery.controller`)
+Espongono gli endpoint REST API.
+*   **`TestController.java`**: (Esistente) Controller di test per verificare la connettività base.
+*   **`AuthController.java`**: (Da creare) Gestisce gli endpoint di autenticazione (es. `/api/auth/login`, `/api/auth/register`).
+*   **`ImageController.java`**: (Da creare) Gestisce gli endpoint relativi alle immagini (es. `POST /api/images` per l'upload, `GET /api/images` per la galleria).
+
+### 5. Configurazione (`it.zaninifrancesco.minio_gallery.config`)
+Classi di configurazione per Spring Boot e altre dipendenze.
+*   **`SecurityConfig.java`**: (Esistente) Configura Spring Security: CORS, regole di autorizzazione per gli endpoint, configurazione del `PasswordEncoder`, integrazione del filtro JWT.
+*   **`MinioConfig.java`**: (Da creare, opzionale) Potrebbe contenere la configurazione del client MinIO se non gestita direttamente in `MinioService` o tramite `application.properties`.
+*   **`ApplicationProperties`**: (File `application.properties`) Contiene le configurazioni per database, MinIO (endpoint, credenziali, bucket), JWT (segreto, scadenza).
+
+### 6. Sicurezza (`it.zaninifrancesco.minio_gallery.security` o sottocartelle)
+Componenti specifici per la gestione della sicurezza e JWT.
+*   **`JwtTokenProvider.java`** (o `JwtUtils.java`): (Da creare) Utility class per generare, parsare e validare i token JWT.
+*   **`AuthTokenFilter.java`** (o `JwtRequestFilter.java`): (Da creare) Filtro Spring Security che intercetta le richieste, estrae il JWT, lo valida e imposta l'autenticazione nel contesto di sicurezza di Spring.
+*   **`PasswordEncoder`**: (Bean definito in `SecurityConfig.java`) Utilizzato per codificare le password degli utenti prima di salvarle nel database.
+
+### 7. DTO (Data Transfer Objects - `it.zaninifrancesco.minio_gallery.payload` o `it.zaninifrancesco.minio_gallery.dto`)
+Oggetti semplici per trasferire dati tra i layer, specialmente per le richieste e risposte API.
+*   **`LoginRequest.java`**: (Da creare) DTO per i dati di login (username, password).
+*   **`SignupRequest.java`**: (Da creare) DTO per i dati di registrazione (username, password, email opzionale, ruoli opzionali).
+*   **`JwtResponse.java`** (o `LoginResponse.java`): (Da creare) DTO per la risposta dopo un login успешный (token JWT, tipo di token, id utente, username, ruoli).
+*   **`ImageUploadRequest.java`**: (Da creare, o gestito con `@RequestPart` per `MultipartFile` e un DTO per i metadati) DTO per i metadati dell'immagine durante l'upload (titolo, descrizione, tag).
+*   **`ImageResponse.java`**: (Da creare) DTO per restituire i dettagli di un'immagine, inclusi i metadati e l'`imageUrl` (presigned URL).
+*   **`MessageResponse.java`**: (Da creare, opzionale) DTO generico per risposte API semplici (es. messaggi di successo o errore).
+
+### 8. Gestione Eccezioni (`it.zaninifrancesco.minio_gallery.exception`)
+*   **`GlobalExceptionHandler.java`** (o `@ControllerAdvice` specifici): (Da creare) Per gestire eccezioni globali e restituire risposte HTTP appropriate.
+*   Custom exceptions (es. `ResourceNotFoundException.java`, `BadRequestException.java`, `MinioOperationException.java`).
+
+---
+
+## Schema Database (PostgreSQL)
+
+Di seguito è descritto lo schema del database PostgreSQL utilizzato dall'applicazione.
+
+### Tabella: `roles`
+Memorizza i ruoli disponibili nell'applicazione.
+
+| Colonna | Tipo        | Constraint      | Descrizione                  |
+|---------|-------------|-----------------|------------------------------|
+| `id`    | `INTEGER`   | `PRIMARY KEY`   | ID univoco del ruolo (auto-generato) |
+| `name`  | `VARCHAR(20)` | `NOT NULL`, `UNIQUE` | Nome del ruolo (es. `ROLE_USER`) |
+
+*Esempio dati:*
+* (1, 'ROLE_USER')
+* (2, 'ROLE_ADMIN')
+
+### Tabella: `users`
+Memorizza le informazioni degli utenti registrati.
+
+| Colonna    | Tipo          | Constraint                        | Descrizione                           |
+|------------|---------------|-----------------------------------|---------------------------------------|
+| `id`       | `BIGINT`      | `PRIMARY KEY`                     | ID univoco dell'utente (auto-generato) |
+| `username` | `VARCHAR(255)`| `NOT NULL`, `UNIQUE`              | Username univoco per il login         |
+| `password` | `VARCHAR(255)`| `NOT NULL`                        | Password dell'utente (hashed)         |
+| `email`    | `VARCHAR(255)`| `UNIQUE`                          | Email dell'utente (opzionale, univoca) |
+| `created_at` | `TIMESTAMP`   | `DEFAULT CURRENT_TIMESTAMP`     | Data e ora di creazione utente        |
+| `updated_at` | `TIMESTAMP`   | `DEFAULT CURRENT_TIMESTAMP`     | Data e ora ultimo aggiornamento utente |
+
+### Tabella: `user_roles`
+Tabella di join per la relazione Many-to-Many tra `users` e `roles`.
+
+| Colonna   | Tipo      | Constraint                                       | Descrizione                     |
+|-----------|-----------|--------------------------------------------------|---------------------------------|
+| `user_id` | `BIGINT`  | `PRIMARY KEY`, `FOREIGN KEY` references `users(id)` | ID dell'utente                  |
+| `role_id` | `INTEGER` | `PRIMARY KEY`, `FOREIGN KEY` references `roles(id)` | ID del ruolo                    |
+
+*Chiave Primaria Composita:* (`user_id`, `role_id`)
+
+### Tabella: `image_metadata`
+Memorizza i metadati delle immagini caricate.
+
+| Colonna             | Tipo          | Constraint                             | Descrizione                                      |
+|---------------------|---------------|----------------------------------------|--------------------------------------------------|
+| `id`                | `UUID`        | `PRIMARY KEY`                          | ID univoco dell'immagine (generato dall'applicazione) |
+| `title`             | `VARCHAR(255)`| `NOT NULL`                             | Titolo dell'immagine                             |
+| `description`       | `TEXT`        |                                        | Descrizione dell'immagine                        |
+| `tags`              | `TEXT[]`      |                                        | Array di tag testuali (opzionale)                |
+| `file_name`         | `VARCHAR(255)`| `NOT NULL`, `UNIQUE`                   | Nome del file su MinIO (es. `uuid.jpg`)          |
+| `bucket_name`       | `VARCHAR(255)`| `NOT NULL`                             | Nome del bucket MinIO                            |
+| `original_file_name`| `VARCHAR(255)`|                                        | Nome originale del file caricato dall'utente     |
+| `content_type`      | `VARCHAR(100)`|                                        | Tipo MIME del file (es. `image/jpeg`)            |
+| `size`              | `BIGINT`      |                                        | Dimensione del file in byte                      |
+| `uploaded_at`       | `TIMESTAMP`   | `DEFAULT CURRENT_TIMESTAMP`            | Data e ora di caricamento                        |
+| `user_id`           | `BIGINT`      | `FOREIGN KEY` references `users(id)`   | ID dell'utente che ha caricato l'immagine        |
+
+*Indici:*
+* Potrebbe essere utile un indice su `uploaded_at` per ordinare la galleria.
+* Indice su `user_id` per recuperare rapidamente le immagini di un utente.
+
+---
 
