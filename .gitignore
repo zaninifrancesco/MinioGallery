@@ -23,4 +23,4 @@ Thumbs.db
 .spring-boot-devtools.properties
 
 # Dati di MinIO
-minio_data/
+/minio_data/
