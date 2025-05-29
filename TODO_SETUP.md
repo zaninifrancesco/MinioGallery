@@ -14,10 +14,10 @@ Data: 29 maggio 2025
 - [x] Configurazione MinIO in `application.properties`
   - [x] Definizione endpoint, access key, secret key, bucket name
 - [x] Aggiunta dipendenza MinIO SDK in `pom.xml`
-- [ ] Configurazione JWT in `application.properties`
-  - [ ] Definizione segreto, expiration, header, prefix
-- [ ] Aggiunta dipendenze JWT (jjwt-api, jjwt-impl, jjwt-jackson) in `pom.xml`
-- [ ] Verifica connessione al database PostgreSQL (avvio applicazione e controllo log/actuator)
+- [x] Configurazione JWT in `application.properties`
+  - [x] Definizione segreto, expiration, header, prefix
+- [x] Aggiunta dipendenze JWT (jjwt-api, jjwt-impl, jjwt-jackson) in `pom.xml`
+- [x] Verifica connessione al database PostgreSQL (avvio applicazione e controllo log/actuator)
 
 ### Feature 1: Upload Immagine
 - [ ] Creazione Entità JPA `ImageMetadata.java` (UUID, titolo, descrizione, tags, path MinIO, bucket, data caricamento)

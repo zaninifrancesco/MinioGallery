@@ -1,0 +1,24 @@
+# File generati dall'IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# File di build e dipendenze locali
+/target/
+/build/
+/.gradle/
+
+# Log files
+*.log
+
+# File di configurazione locali e segreti
+.env
+local.properties
+
+# File specifici del sistema operativo
+.DS_Store
+Thumbs.db
+
+# File di Spring Boot Devtools
+.spring-boot-devtools.properties
