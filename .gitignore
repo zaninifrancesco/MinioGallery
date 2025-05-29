@@ -13,7 +13,6 @@
 *.log
 
 # File di configurazione locali e segreti
-.env
 local.properties
 
 # File specifici del sistema operativo
@@ -22,3 +21,6 @@ Thumbs.db
 
 # File di Spring Boot Devtools
 .spring-boot-devtools.properties
+
+# Dati di MinIO
+minio_data/
