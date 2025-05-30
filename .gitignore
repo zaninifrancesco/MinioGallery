@@ -3,11 +3,53 @@
 *.iml
 *.ipr
 *.iws
+.vscode/
 
-# File di build e dipendenze locali
-/target/
-/build/
+# File di build e dipendenze locali - Backend
+/Backend/minio-gallery/target/
+/Backend/minio-gallery/build/
 /.gradle/
+
+# Flutter/Dart/Pub related - Frontend
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/Frontend/minio-gallery/build/
+
+# Generated files - Flutter
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart
+**/GeneratedPluginRegistrant.*
+**/generated_plugin_registrant.*
+**/generated_plugins.cmake
+
+# Android Studio/IntelliJ Flutter
+/Frontend/minio-gallery/android/app/debug
+/Frontend/minio-gallery/android/app/profile
+/Frontend/minio-gallery/android/app/release
+
+# iOS Flutter
+**/ios/Flutter/.last_build_id
+**/ios/Pods/
+**/ios/.symlinks/
+
+# Web Flutter
+/Frontend/minio-gallery/web/build/
+
+# Windows Flutter
+**/windows/flutter/ephemeral/
+
+# MacOS Flutter  
+**/macos/Flutter/ephemeral/
+
+# Linux Flutter
+**/linux/flutter/ephemeral/
 
 # Log files
 *.log
@@ -24,3 +66,12 @@ Thumbs.db
 
 # Dati di MinIO
 /minio_data/
+
+# Dependency directories
+node_modules/
+
+# Simbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
