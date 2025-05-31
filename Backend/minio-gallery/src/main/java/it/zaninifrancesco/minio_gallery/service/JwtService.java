@@ -15,10 +15,10 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     
-    @Value("${jwt.secret:mySecretKey12345678901234567890123456789012345678901234567890}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
     
-    @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
+    @Value("${jwt.expiration}")
     private Long jwtExpirationMs;
     
     @Value("${jwt.refresh-expiration:604800000}") // 7 days in milliseconds
@@ -54,6 +54,12 @@ public class JwtService {
         return createToken(claims, userDetails.getUsername(), jwtExpirationMs);
     }
     
+    // Overload method to support String username (compatibility with old JwtUtil)
+    public String generateToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, username, jwtExpirationMs);
+    }
+    
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername(), refreshExpirationMs);
@@ -80,7 +86,7 @@ public class JwtService {
                     .setSigningKey(getSignKey())
                     .build()
                     .parseClaimsJws(token);
-            return true;
+            return !isTokenExpired(token);
         } catch (MalformedJwtException e) {
             System.err.println("Invalid JWT token: " + e.getMessage());
         } catch (ExpiredJwtException e) {

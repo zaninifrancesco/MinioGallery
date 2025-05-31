@@ -6,7 +6,7 @@ import it.zaninifrancesco.minio_gallery.dto.RegisterRequest;
 import it.zaninifrancesco.minio_gallery.dto.UserResponse;
 import it.zaninifrancesco.minio_gallery.entity.User;
 import it.zaninifrancesco.minio_gallery.repository.UserRepository;
-import it.zaninifrancesco.minio_gallery.util.JwtUtil;
+import it.zaninifrancesco.minio_gallery.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +24,7 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -53,8 +53,8 @@ public class AuthService {
         User savedUser = userRepository.save(user);
         // Generate tokens
         UserDetails userDetails = userDetailsService.loadUserByUsername(savedUser.getUsername());
-        String token = jwtUtil.generateToken(userDetails);
-        String refreshToken = jwtUtil.generateToken(userDetails); // Semplifichiamo per ora
+        String token = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails); // Usa refresh token specifico
 
         return new AuthResponse(
                 token,
@@ -90,8 +90,8 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         // Generate tokens
-        String token = jwtUtil.generateToken(userDetails);
-        String refreshToken = jwtUtil.generateToken(userDetails);
+        String token = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
         
         return new AuthResponse(
                 token,
@@ -103,17 +103,17 @@ public class AuthService {
     }
 
     public AuthResponse refreshToken(String refreshToken) {
-        if (!jwtUtil.validateToken(refreshToken)) {
+        if (!jwtService.validateToken(refreshToken)) {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        String username = jwtUtil.extractUsername(refreshToken);
+        String username = jwtService.extractUsername(refreshToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String newToken = jwtUtil.generateToken(userDetails);
-        String newRefreshToken = jwtUtil.generateToken(userDetails); // Semplifichiamo per ora
+        String newToken = jwtService.generateToken(userDetails);
+        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
 
         return new AuthResponse(
                 newToken,

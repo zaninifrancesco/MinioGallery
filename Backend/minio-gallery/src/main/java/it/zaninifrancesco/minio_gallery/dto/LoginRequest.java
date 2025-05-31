@@ -4,13 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
     
-    // Rimuovo @NotBlank per permettere login solo con email
     private String username;
     
     @NotBlank(message = "Password is required")
     private String password;
 
-    private String email; // Optional, can be used for login
+    private String email; 
     
     // Constructors
     public LoginRequest() {}

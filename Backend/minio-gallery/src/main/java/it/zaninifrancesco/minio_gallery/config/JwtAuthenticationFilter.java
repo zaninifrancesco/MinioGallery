@@ -1,7 +1,7 @@
 package it.zaninifrancesco.minio_gallery.config;
 
 import it.zaninifrancesco.minio_gallery.service.CustomUserDetailsService;
-import it.zaninifrancesco.minio_gallery.util.JwtUtil;
+import it.zaninifrancesco.minio_gallery.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
     
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -39,12 +39,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
           jwt = authHeader.substring(7);
-        username = jwtUtil.extractUsername(jwt);
+        username = jwtService.extractUsername(jwt);
         
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             
-            if (jwtUtil.validateToken(jwt, userDetails)) {
+            if (jwtService.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
