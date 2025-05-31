@@ -4,18 +4,21 @@ import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
     
-    @NotBlank(message = "Username is required")
+    // Rimuovo @NotBlank per permettere login solo con email
     private String username;
     
     @NotBlank(message = "Password is required")
     private String password;
+
+    private String email; // Optional, can be used for login
     
     // Constructors
     public LoginRequest() {}
     
-    public LoginRequest(String username, String password) {
+    public LoginRequest(String username, String password, String email) {
         this.username = username;
         this.password = password;
+        this.email = email;
     }
     
     // Getters and Setters
@@ -34,4 +37,12 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 }

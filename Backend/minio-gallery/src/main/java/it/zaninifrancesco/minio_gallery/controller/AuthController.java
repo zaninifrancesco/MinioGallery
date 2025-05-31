@@ -30,8 +30,15 @@ public class AuthController {
     }
     
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
+            // Validazione manuale dato che abbiamo rimosso @NotBlank da username
+            if ((request.getUsername() == null || request.getUsername().trim().isEmpty()) && 
+                (request.getEmail() == null || request.getEmail().trim().isEmpty())) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Username or email is required"));
+            }
+            
             AuthResponse response = authService.login(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
