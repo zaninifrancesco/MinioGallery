@@ -231,7 +231,6 @@ Memorizza i metadati delle immagini caricate.
 | `id`                | `UUID`        | `PRIMARY KEY`                          | ID univoco dell'immagine (generato dall'applicazione) |
 | `title`             | `VARCHAR(255)`| `NOT NULL`                             | Titolo dell'immagine                             |
 | `description`       | `TEXT`        |                                        | Descrizione dell'immagine                        |
-| `tags`              | `TEXT[]`      |                                        | Array di tag testuali (opzionale)                |
 | `file_name`         | `VARCHAR(255)`| `NOT NULL`, `UNIQUE`                   | Nome del file su MinIO (es. `uuid.jpg`)          |
 | `bucket_name`       | `VARCHAR(255)`| `NOT NULL`                             | Nome del bucket MinIO                            |
 | `original_file_name`| `VARCHAR(255)`|                                        | Nome originale del file caricato dall'utente     |
@@ -243,6 +242,99 @@ Memorizza i metadati delle immagini caricate.
 *Indici:*
 * Potrebbe essere utile un indice su `uploaded_at` per ordinare la galleria.
 * Indice su `user_id` per recuperare rapidamente le immagini di un utente.
+
+### Tabella: `tags`
+Memorizza tutti i tag univoci disponibili nel sistema.
+
+| Colonna    | Tipo          | Constraint                        | Descrizione                           |
+|------------|---------------|-----------------------------------|---------------------------------------|
+| `id`       | `BIGINT`      | `PRIMARY KEY`                     | ID univoco del tag (auto-generato)   |
+| `name`     | `VARCHAR(100)`| `NOT NULL`, `UNIQUE`              | Nome del tag (es. "natura", "viaggio") |
+| `created_at` | `TIMESTAMP` | `DEFAULT CURRENT_TIMESTAMP`       | Data di creazione del tag             |
+
+*Esempio dati:*
+* (1, 'natura')
+* (2, 'viaggio')  
+* (3, 'famiglia')
+
+### Tabella: `image_tags`
+Tabella di join per la relazione Many-to-Many tra `image_metadata` e `tags`.
+
+| Colonna    | Tipo    | Constraint                                              | Descrizione               |
+|------------|---------|---------------------------------------------------------|---------------------------|
+| `image_id` | `UUID`  | `PRIMARY KEY`, `FOREIGN KEY` references `image_metadata(id)` | ID dell'immagine          |
+| `tag_id`   | `BIGINT`| `PRIMARY KEY`, `FOREIGN KEY` references `tags(id)`      | ID del tag                |
+
+*Chiave Primaria Composita:* (`image_id`, `tag_id`)
+
+*Vincoli aggiuntivi:*
+* `ON DELETE CASCADE` per `image_id`: se un'immagine viene eliminata, rimuove automaticamente le associazioni con i tag
+* `ON DELETE CASCADE` per `tag_id`: se un tag viene eliminato, rimuove automaticamente le associazioni con le immagini
+
+*Indici:*
+* Indice su `image_id` per trovare rapidamente tutti i tag di un'immagine
+* Indice su `tag_id` per trovare rapidamente tutte le immagini con un tag specifico
+
+---
+
+## Query SQL Comuni
+
+### Trovare tutte le immagini con i loro tag
+```sql
+SELECT 
+    im.id, im.title, im.description, im.file_name, im.uploaded_at,
+    ARRAY_AGG(t.name) as tags
+FROM image_metadata im
+LEFT JOIN image_tags it ON im.id = it.image_id
+LEFT JOIN tags t ON it.tag_id = t.id
+GROUP BY im.id, im.title, im.description, im.file_name, im.uploaded_at
+ORDER BY im.uploaded_at DESC;
+```
+
+### Trovare immagini per tag specifico
+```sql
+SELECT DISTINCT im.*
+FROM image_metadata im
+JOIN image_tags it ON im.id = it.image_id
+JOIN tags t ON it.tag_id = t.id
+WHERE t.name = 'natura'
+ORDER BY im.uploaded_at DESC;
+```
+
+### Trovare immagini con più tag (AND logic)
+```sql
+SELECT im.*
+FROM image_metadata im
+WHERE im.id IN (
+    SELECT it.image_id
+    FROM image_tags it
+    JOIN tags t ON it.tag_id = t.id
+    WHERE t.name IN ('natura', 'viaggio')
+    GROUP BY it.image_id
+    HAVING COUNT(DISTINCT t.name) = 2
+);
+```
+
+### Contare immagini per tag (statistiche)
+```sql
+SELECT t.name, COUNT(it.image_id) as image_count
+FROM tags t
+LEFT JOIN image_tags it ON t.id = it.tag_id
+GROUP BY t.id, t.name
+ORDER BY image_count DESC;
+```
+
+---
+
+## Vantaggi del Schema con Tabelle Separate per i Tag
+
+1. **Prestazioni**: Le query di ricerca per tag sono molto più veloci usando indici su relazioni normalizzate
+2. **Integrità dei Dati**: I tag vengono memorizzati una sola volta, evitando duplicazioni e inconsistenze
+3. **Statistiche**: È facile calcolare quante immagini hanno un determinato tag
+4. **Autocompletamento**: È possibile implementare facilmente un sistema di autocompletamento dei tag
+5. **Gestione Tag**: È possibile rinominare o eliminare tag globalmente
+6. **Scalabilità**: Lo schema supporta meglio un gran numero di tag e immagini
+7. **Query Complesse**: Permette ricerche avanzate come "immagini con tag A ma non tag B"
 
 ---
 

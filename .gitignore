@@ -75,3 +75,10 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+Frontend/minio-gallery/pubspec.lock
+Frontend/minio-gallery/pubspec.lock
+Frontend/minio-gallery/ios/Podfile
+Frontend/minio-gallery/ios/Flutter/Debug.xcconfig
+.gitignore
+Frontend/minio-gallery/macos/Flutter/GeneratedPluginRegistrant.swift
+Frontend/minio-gallery/macos/Flutter/Flutter-Release.xcconfig
