@@ -29,7 +29,6 @@ class ProfileScreen extends StatelessWidget {
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           final user = authProvider.user;
-          Provider.of<AuthProvider>(context, listen: false).refreshProfile();
           if (user == null) {
             return const Center(child: Text('No user data available'));
           }

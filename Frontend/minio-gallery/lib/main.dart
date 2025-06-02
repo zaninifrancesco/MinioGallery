@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/gallery_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/gallery_screen.dart';
+import 'screens/upload_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,8 +18,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => AuthProvider()..initializeAuth(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => AuthProvider()..initializeAuth(),
+        ),
+        ChangeNotifierProvider(create: (context) => GalleryProvider()),
+      ],
       child: MaterialApp(
         title: 'MinioGallery',
         theme: ThemeData(
@@ -42,6 +50,8 @@ class MyApp extends StatelessWidget {
           '/register': (context) => const RegisterScreen(),
           '/home': (context) => const HomeScreen(),
           '/profile': (context) => const ProfileScreen(),
+          '/gallery': (context) => const GalleryScreen(),
+          '/upload': (context) => const UploadScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),
