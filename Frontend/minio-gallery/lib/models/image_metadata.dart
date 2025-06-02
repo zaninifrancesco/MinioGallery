@@ -20,16 +20,33 @@ class ImageMetadata {
     this.fileName,
     this.uploaderUsername,
   });
-
   factory ImageMetadata.fromJson(Map<String, dynamic> json) {
+    print('ImageMetadata.fromJson received: $json');
+
+    // Handle date parsing more robustly
+    DateTime parsedDate;
+    try {
+      String dateStr = json['uploadedAt'] as String;
+      print('Parsing date: $dateStr');
+
+      // Try ISO format first
+      try {
+        parsedDate = DateTime.parse(dateStr);
+      } catch (e) {
+        // If that fails, try the backend format "yyyy-MM-dd HH:mm:ss"
+        parsedDate = DateTime.parse(dateStr.replaceAll(' ', 'T'));
+      }
+    } catch (e) {
+      print('Error parsing date: $e');
+      parsedDate = DateTime.now(); // Fallback
+    }
+
     return ImageMetadata(
       id: json['id'].toString(), // Convert UUID to String
       title: json['title'] as String,
       description: json['description'] as String? ?? '',
       imageUrl: json['imageUrl'] as String,
-      uploadedAt: DateTime.parse(
-        json['uploadedAt'] as String,
-      ), // Changed from uploadTimestamp
+      uploadedAt: parsedDate,
       tags: List<String>.from(json['tags'] as List? ?? []),
       presignedUrl: json['presignedUrl'] as String?,
       fileName: json['fileName'] as String?,

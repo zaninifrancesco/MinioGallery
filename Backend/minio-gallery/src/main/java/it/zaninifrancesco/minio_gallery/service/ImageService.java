@@ -165,6 +165,28 @@ public class ImageService {
     }
     
     /**
+     * Cerca immagini dell'utente corrente per tag
+     */
+    public Page<ImageResponse> searchUserImagesByTags(String username, List<String> tagNames, Pageable pageable) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        
+        Page<ImageMetadata> imagePage = imageMetadataRepository.findByUserAndAnyTags(user, tagNames, pageable);
+        return imagePage.map(this::createImageResponse);
+    }
+    
+    /**
+     * Cerca immagini dell'utente corrente per titolo o descrizione
+     */
+    public Page<ImageResponse> searchUserImages(String username, String query, Pageable pageable) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        
+        Page<ImageMetadata> imagePage = imageMetadataRepository.findByUserAndTitleOrDescriptionContainingIgnoreCase(user, query, pageable);
+        return imagePage.map(this::createImageResponse);
+    }
+    
+    /**
      * Elimina un'immagine (solo il proprietario può farlo)
      */
     public void deleteImage(UUID imageId, String username) {

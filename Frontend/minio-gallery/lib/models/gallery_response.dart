@@ -18,14 +18,19 @@ class GalleryResponse {
     required this.first,
     required this.last,
   });
-
   factory GalleryResponse.fromJson(Map<String, dynamic> json) {
+    print('GalleryResponse.fromJson received: $json');
+    print('GalleryResponse content type: ${json['content'].runtimeType}');
+    print('GalleryResponse content length: ${json['content']?.length}');
+
     return GalleryResponse(
       content:
           (json['content'] as List)
               .map((item) => ImageMetadata.fromJson(item))
               .toList(),
-      page: json['page'] as int,
+      page:
+          json['number']
+              as int, // Spring Data Page usa 'number' invece di 'page'
       size: json['size'] as int,
       totalElements: json['totalElements'] as int,
       totalPages: json['totalPages'] as int,

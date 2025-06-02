@@ -237,6 +237,68 @@ public class ImageController {
     }
     
     /**
+     * Cerca immagini dell'utente corrente per tag
+     * GET /api/images/my/search/tags?tags=nature,landscape&page=0&size=12
+     */
+    @GetMapping("/my/search/tags")
+    public ResponseEntity<?> searchMyImagesByTags(
+            @RequestParam List<String> tags,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        
+        try {
+            // Ottieni l'utente autenticato
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            
+            logger.info("Searching user images with tags: {} for user: {} - page: {}, size: {}", tags, username, page, size);
+            
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ImageResponse> images = imageService.searchUserImagesByTags(username, tags, pageable);
+            
+            logger.info("Found {} images matching tags {} for user {}", images.getNumberOfElements(), tags, username);
+            
+            return ResponseEntity.ok(images);
+            
+        } catch (Exception e) {
+            logger.error("Error searching user images by tags", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to search your images by tags: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Cerca immagini dell'utente corrente per testo (titolo o descrizione)
+     * GET /api/images/my/search?query=landscape&page=0&size=12
+     */
+    @GetMapping("/my/search")
+    public ResponseEntity<?> searchMyImages(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        
+        try {
+            // Ottieni l'utente autenticato
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            
+            logger.info("Searching user images with query: '{}' for user: {} - page: {}, size: {}", query, username, page, size);
+            
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ImageResponse> images = imageService.searchUserImages(username, query, pageable);
+            
+            logger.info("Found {} images matching query '{}' for user {}", images.getNumberOfElements(), query, username);
+            
+            return ResponseEntity.ok(images);
+            
+        } catch (Exception e) {
+            logger.error("Error searching user images", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to search your images: " + e.getMessage()));
+        }
+    }
+    
+    /**
      * Elimina un'immagine (solo il proprietario può farlo)
      * DELETE /api/images/{id}
      */

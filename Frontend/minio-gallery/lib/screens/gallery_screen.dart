@@ -207,7 +207,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   );
                 }
-
                 return RefreshIndicator(
                   onRefresh: () => galleryProvider.loadGallery(refresh: true),
                   child: GridView.builder(
@@ -215,10 +214,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     padding: const EdgeInsets.all(16),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.8,
+                          crossAxisCount: 3, // Aumentato da 2 a 3 colonne
+                          crossAxisSpacing: 8, // Ridotto lo spazio
+                          mainAxisSpacing: 8, // Ridotto lo spazio
+                          childAspectRatio: 1.0, // Fatto più quadrato (era 0.8)
                         ),
                     itemCount:
                         galleryProvider.images.length +
@@ -260,7 +259,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           children: [
             // Image
             Expanded(
-              flex: 3,
+              flex: 4, // Aumentato da 3 a 4 per dare più spazio all'immagine
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -301,48 +300,54 @@ class _GalleryScreenState extends State<GalleryScreen> {
             ),
             // Info
             Expanded(
-              flex: 2,
+              flex: 1, // Ridotto da 2 a 1 per meno spazio all'info
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(8.0), // Ridotto da 12 a 8
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       image.title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        // Cambiato da titleSmall
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      image.description,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    const SizedBox(height: 2), // Ridotto da 4 a 2
+                    Expanded(
+                      // Aggiunto Expanded per gestire meglio lo spazio
+                      child: Text(
+                        image.description,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          // Cambiato da bodySmall
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1, // Ridotto da 2 a 1 linea
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const Spacer(),
                     if (image.tags.isNotEmpty)
                       Wrap(
-                        spacing: 4,
+                        spacing: 2, // Ridotto da 4 a 2
                         children:
                             image.tags
                                 .take(2)
                                 .map(
                                   (tag) => Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
+                                      horizontal: 4, // Ridotto da 6 a 4
+                                      vertical: 1, // Ridotto da 2 a 1
                                     ),
                                     decoration: BoxDecoration(
                                       color:
                                           Theme.of(
                                             context,
                                           ).colorScheme.primaryContainer,
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(
+                                        6,
+                                      ), // Ridotto da 8 a 6
                                     ),
                                     child: Text(
                                       tag,
@@ -353,6 +358,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                             Theme.of(
                                               context,
                                             ).colorScheme.onPrimaryContainer,
+                                        fontSize: 10, // Ridotto il font size
                                       ),
                                     ),
                                   ),

@@ -92,8 +92,11 @@ class ImageService {
       if (token == null) throw Exception('No auth token');
 
       final uri = Uri.parse('$baseUrl/images?page=$page&size=$size');
+      print('Fetching gallery from: $uri');
       final response = await http.get(uri, headers: _getHeaders(token));
 
+      print('Gallery response status: ${response.statusCode}');
+      print('Gallery response body: ${response.body}');
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         return GalleryResponse.fromJson(jsonData);
@@ -103,6 +106,31 @@ class ImageService {
       }
     } catch (e) {
       print('Error loading gallery: $e');
+      return null;
+    }
+  }
+
+  // Ottieni le immagini dell'utente corrente con paginazione
+  Future<GalleryResponse?> getMyImages({int page = 0, int size = 12}) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) throw Exception('No auth token');
+
+      final uri = Uri.parse('$baseUrl/images/my?page=$page&size=$size');
+      print('Fetching my images from: $uri');
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('My images response status: ${response.statusCode}');
+      print('My images response body: ${response.body}');
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return GalleryResponse.fromJson(jsonData);
+      } else {
+        print('Failed to load my images: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading my images: $e');
       return null;
     }
   }
@@ -157,9 +185,13 @@ class ImageService {
 
       final tagsParam = tags.join(',');
       final uri = Uri.parse(
-        '$baseUrl/images/search?tags=$tagsParam&page=$page&size=$size',
+        '$baseUrl/images/search/tags?tags=$tagsParam&page=$page&size=$size',
       );
+      print('Searching by tags at: $uri');
       final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('Search response status: ${response.statusCode}');
+      print('Search response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -170,6 +202,103 @@ class ImageService {
       }
     } catch (e) {
       print('Error searching images: $e');
+      return null;
+    }
+  }
+
+  // Cerca immagini per testo (titolo o descrizione)
+  Future<GalleryResponse?> searchByText({
+    required String query,
+    int page = 0,
+    int size = 12,
+  }) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) throw Exception('No auth token');
+
+      final uri = Uri.parse(
+        '$baseUrl/images/search?query=$query&page=$page&size=$size',
+      );
+      print('Searching by text at: $uri');
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('Search response status: ${response.statusCode}');
+      print('Search response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return GalleryResponse.fromJson(jsonData);
+      } else {
+        print('Failed to search images: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching images: $e');
+      return null;
+    }
+  }
+
+  // Cerca le mie immagini per tag
+  Future<GalleryResponse?> searchMyImagesByTags({
+    required List<String> tags,
+    int page = 0,
+    int size = 12,
+  }) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) throw Exception('No auth token');
+
+      final tagsParam = tags.join(',');
+      final uri = Uri.parse(
+        '$baseUrl/images/my/search/tags?tags=$tagsParam&page=$page&size=$size',
+      );
+      print('Searching my images by tags at: $uri');
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('My search response status: ${response.statusCode}');
+      print('My search response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return GalleryResponse.fromJson(jsonData);
+      } else {
+        print('Failed to search my images: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching my images: $e');
+      return null;
+    }
+  }
+
+  // Cerca le mie immagini per testo (titolo o descrizione)
+  Future<GalleryResponse?> searchMyImagesByText({
+    required String query,
+    int page = 0,
+    int size = 12,
+  }) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) throw Exception('No auth token');
+
+      final uri = Uri.parse(
+        '$baseUrl/images/my/search?query=$query&page=$page&size=$size',
+      );
+      print('Searching my images by text at: $uri');
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('My search response status: ${response.statusCode}');
+      print('My search response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return GalleryResponse.fromJson(jsonData);
+      } else {
+        print('Failed to search my images: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error searching my images: $e');
       return null;
     }
   }
