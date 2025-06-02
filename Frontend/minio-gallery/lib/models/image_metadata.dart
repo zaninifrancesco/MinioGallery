@@ -3,29 +3,37 @@ class ImageMetadata {
   final String title;
   final String description;
   final String imageUrl;
-  final DateTime uploadTimestamp;
+  final DateTime uploadedAt; // Changed from uploadTimestamp
   final List<String> tags;
-  final String? presignedUrl; // Changed to nullable String
+  final String? presignedUrl; // Optional, for backward compatibility
+  final String? fileName; // Added to match backend
+  final String? uploaderUsername; // Added to match backend
 
   ImageMetadata({
     required this.id,
     required this.title,
     required this.description,
     required this.imageUrl,
-    required this.uploadTimestamp,
+    required this.uploadedAt, // Changed from uploadTimestamp
     required this.tags,
-    this.presignedUrl, // Changed to optional
+    this.presignedUrl,
+    this.fileName,
+    this.uploaderUsername,
   });
 
   factory ImageMetadata.fromJson(Map<String, dynamic> json) {
     return ImageMetadata(
-      id: json['id'] as String,
+      id: json['id'].toString(), // Convert UUID to String
       title: json['title'] as String,
-      description: json['description'] as String,
+      description: json['description'] as String? ?? '',
       imageUrl: json['imageUrl'] as String,
-      uploadTimestamp: DateTime.parse(json['uploadTimestamp'] as String),
-      tags: List<String>.from(json['tags'] as List),
-      presignedUrl: json['presignedUrl'] as String?, // Changed to nullable cast
+      uploadedAt: DateTime.parse(
+        json['uploadedAt'] as String,
+      ), // Changed from uploadTimestamp
+      tags: List<String>.from(json['tags'] as List? ?? []),
+      presignedUrl: json['presignedUrl'] as String?,
+      fileName: json['fileName'] as String?,
+      uploaderUsername: json['uploaderUsername'] as String?,
     );
   }
 
@@ -35,9 +43,12 @@ class ImageMetadata {
       'title': title,
       'description': description,
       'imageUrl': imageUrl,
-      'uploadTimestamp': uploadTimestamp.toIso8601String(),
+      'uploadedAt':
+          uploadedAt.toIso8601String(), // Changed from uploadTimestamp
       'tags': tags,
       'presignedUrl': presignedUrl,
+      'fileName': fileName,
+      'uploaderUsername': uploaderUsername,
     };
   }
 }

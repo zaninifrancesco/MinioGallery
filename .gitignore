@@ -1,84 +1,155 @@
-# File generati dall'IDE
+# ============================================
+# IDE and Editor Files
+# ============================================
 .idea/
 *.iml
 *.ipr
 *.iws
-.vscode/
+.vscode/settings.json
+.vscode/launch.json
+*.swp
+*.swo
+*~
 
-# File di build e dipendenze locali - Backend
-/Backend/minio-gallery/target/
-/Backend/minio-gallery/build/
-/.gradle/
+# ============================================
+# Backend - Spring Boot / Maven
+# ============================================
+Backend/minio-gallery/target/
+Backend/minio-gallery/build/
+Backend/minio-gallery/.mvn/wrapper/maven-wrapper.jar
+Backend/minio-gallery/.gradle/
+Backend/minio-gallery/bin/
+Backend/minio-gallery/out/
+Backend/minio-gallery/logs/
+Backend/minio-gallery/*.log
 
-# Flutter/Dart/Pub related - Frontend
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-/Frontend/minio-gallery/build/
+# Spring Boot specific
+Backend/minio-gallery/spring.log
+Backend/minio-gallery/.spring-boot-devtools.properties
 
-# Generated files - Flutter
-**/*.g.dart
-**/*.freezed.dart
-**/*.mocks.dart
-**/GeneratedPluginRegistrant.*
-**/generated_plugin_registrant.*
-**/generated_plugins.cmake
+# ============================================
+# Frontend - Flutter/Dart
+# ============================================
+Frontend/minio-gallery/.dart_tool/
+Frontend/minio-gallery/.flutter-plugins
+Frontend/minio-gallery/.flutter-plugins-dependencies
+Frontend/minio-gallery/.packages
+Frontend/minio-gallery/.pub-cache/
+Frontend/minio-gallery/.pub/
+Frontend/minio-gallery/build/
+Frontend/minio-gallery/web/build/
 
-# Android Studio/IntelliJ Flutter
-/Frontend/minio-gallery/android/app/debug
-/Frontend/minio-gallery/android/app/profile
-/Frontend/minio-gallery/android/app/release
+# Generated files
+Frontend/minio-gallery/**/*.g.dart
+Frontend/minio-gallery/**/*.freezed.dart
+Frontend/minio-gallery/**/*.mocks.dart
+Frontend/minio-gallery/**/GeneratedPluginRegistrant.*
+Frontend/minio-gallery/**/generated_plugin_registrant.*
+Frontend/minio-gallery/**/generated_plugins.cmake
 
-# iOS Flutter
-**/ios/Flutter/.last_build_id
-**/ios/Pods/
-**/ios/.symlinks/
+# Flutter platform-specific
+Frontend/minio-gallery/android/app/debug/
+Frontend/minio-gallery/android/app/profile/
+Frontend/minio-gallery/android/app/release/
+Frontend/minio-gallery/android/.gradle/
+Frontend/minio-gallery/android/captures/
+Frontend/minio-gallery/android/local.properties
+Frontend/minio-gallery/android/key.properties
 
-# Web Flutter
-/Frontend/minio-gallery/web/build/
+Frontend/minio-gallery/ios/Flutter/.last_build_id
+Frontend/minio-gallery/ios/Pods/
+Frontend/minio-gallery/ios/.symlinks/
+Frontend/minio-gallery/ios/ServiceDefinitions.json
+Frontend/minio-gallery/ios/Runner/GoogleService-Info.plist
 
-# Windows Flutter
-**/windows/flutter/ephemeral/
+Frontend/minio-gallery/windows/flutter/ephemeral/
+Frontend/minio-gallery/macos/Flutter/ephemeral/
+Frontend/minio-gallery/linux/flutter/ephemeral/
 
-# MacOS Flutter  
-**/macos/Flutter/ephemeral/
+# ============================================
+# Configuration and Secrets
+# ============================================
+# Application properties con credenziali
+Backend/minio-gallery/src/main/resources/application-prod.properties
+Backend/minio-gallery/src/main/resources/application-local.properties
+Backend/minio-gallery/src/main/resources/application-dev.properties
 
-# Linux Flutter
-**/linux/flutter/ephemeral/
+# File di ambiente Flutter
+Frontend/minio-gallery/.env
+Frontend/minio-gallery/.env.local
+Frontend/minio-gallery/.env.prod
 
-# Log files
+# Certificati e chiavi
+*.p12
+*.jks
+*.keystore
+*.pem
+*.key
+*.crt
+
+# ============================================
+# Database e Storage
+# ============================================
+# Dati locali di MinIO
+minio_data/
+minio-data/
+storage/
+
+# Database files (se usi H2 o SQLite per test)
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# Logs e Debug
+# ============================================
 *.log
+logs/
+log/
+Backend/minio-gallery/logs/
+Frontend/minio-gallery/logs/
 
-# File di configurazione locali e segreti
-local.properties
+# Debug symbols
+Frontend/minio-gallery/app.*.symbols
+Frontend/minio-gallery/app.*.map.json
 
-# File specifici del sistema operativo
+# ============================================
+# OS specific
+# ============================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# File di Spring Boot Devtools
-.spring-boot-devtools.properties
-
-# Dati di MinIO
-/minio_data/
-
-# Dependency directories
+# ============================================
+# Dependencies
+# ============================================
 node_modules/
-
-# Simbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
 Frontend/minio-gallery/pubspec.lock
-Frontend/minio-gallery/pubspec.lock
-Frontend/minio-gallery/ios/Podfile
-Frontend/minio-gallery/ios/Flutter/Debug.xcconfig
-.gitignore
-Frontend/minio-gallery/macos/Flutter/GeneratedPluginRegistrant.swift
-Frontend/minio-gallery/macos/Flutter/Flutter-Release.xcconfig
+
+# ============================================
+# Testing e Coverage
+# ============================================
+Backend/minio-gallery/coverage/
+Frontend/minio-gallery/coverage/
+Frontend/minio-gallery/test/coverage/
+
+# ============================================
+# Docker (se usi Docker)
+# ============================================
+# docker-compose.override.yml
+# .docker/
+
+# ============================================
+# Backup e Temp files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+.#*

@@ -27,7 +27,6 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/images")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class ImageController {
     
     private static final Logger logger = LoggerFactory.getLogger(ImageController.class);

@@ -149,7 +149,7 @@ class ImageDetailScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'Uploaded ${_formatDate(image.uploadTimestamp)}',
+                        'Uploaded ${_formatDate(image.uploadedAt)}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),

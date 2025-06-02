@@ -65,15 +65,18 @@ class ImageService {
       request.fields['title'] = metadata.title;
       request.fields['description'] = metadata.description;
       request.fields['tags'] = metadata.tags.join(',');
-
       final response = await request.send();
+      print('Upload response status code: ${response.statusCode}');
+
+      final responseBody = await response.stream.bytesToString();
+      print('Upload response body: $responseBody');
 
       if (response.statusCode == 201) {
-        final responseBody = await response.stream.bytesToString();
         final jsonData = json.decode(responseBody);
         return ImageMetadata.fromJson(jsonData);
       } else {
         print('Upload failed: ${response.statusCode}');
+        print('Response body: $responseBody');
         return null;
       }
     } catch (e) {
