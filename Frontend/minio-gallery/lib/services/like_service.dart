@@ -26,7 +26,7 @@ class LikeService {
       final token = await _getAuthToken();
       if (token == null) throw Exception('No auth token');
 
-      final uri = Uri.parse('$baseUrl/images/$imageId/likes');
+      final uri = Uri.parse('$baseUrl/likes/toggle/$imageId');
       final response = await http.post(uri, headers: _getHeaders(token));
 
       print('Toggle like response status: ${response.statusCode}');
@@ -39,46 +39,40 @@ class LikeService {
     }
   }
 
-  // Ottieni il conteggio di like di un'immagine
-  Future<int> getLikeCount(String imageId) async {
+  // Ottieni lo stato del like (conteggio e se l'utente corrente ha messo like)
+  Future<Map<String, dynamic>> getLikeStatus(String imageId) async {
     try {
       final token = await _getAuthToken();
       if (token == null) throw Exception('No auth token');
 
-      final uri = Uri.parse('$baseUrl/images/$imageId/likes/count');
-      final response = await http.get(uri, headers: _getHeaders(token));
-
-      if (response.statusCode == 200) {
-        return int.parse(response.body);
-      } else {
-        print('Failed to get like count: ${response.statusCode}');
-        return 0;
-      }
-    } catch (e) {
-      print('Error getting like count: $e');
-      return 0;
-    }
-  }
-
-  // Verifica se l'utente corrente ha messo like a un'immagine
-  Future<bool> isLikedByCurrentUser(String imageId) async {
-    try {
-      final token = await _getAuthToken();
-      if (token == null) throw Exception('No auth token');
-
-      final uri = Uri.parse('$baseUrl/images/$imageId/likes/status');
+      final uri = Uri.parse('$baseUrl/likes/status/$imageId');
       final response = await http.get(uri, headers: _getHeaders(token));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['liked'] as bool? ?? false;
+        return {
+          'liked': data['liked'] as bool? ?? false,
+          'likeCount': data['likeCount'] as int? ?? 0,
+        };
       } else {
         print('Failed to get like status: ${response.statusCode}');
-        return false;
+        return {'liked': false, 'likeCount': 0};
       }
     } catch (e) {
       print('Error getting like status: $e');
-      return false;
+      return {'liked': false, 'likeCount': 0};
     }
+  }
+
+  // Ottieni il conteggio di like di un'immagine
+  Future<int> getLikeCount(String imageId) async {
+    final status = await getLikeStatus(imageId);
+    return status['likeCount'] as int;
+  }
+
+  // Verifica se l'utente corrente ha messo like a un'immagine
+  Future<bool> isLikedByCurrentUser(String imageId) async {
+    final status = await getLikeStatus(imageId);
+    return status['liked'] as bool;
   }
 }

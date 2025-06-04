@@ -19,7 +19,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/likes")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class LikeController {
     
     @Autowired
