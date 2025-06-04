@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/api/test", "/api/auth/**", "/api/images/view/**").permitAll() // Allow public access to view images
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only endpoints
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

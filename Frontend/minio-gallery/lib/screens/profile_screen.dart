@@ -170,6 +170,21 @@ class ProfileScreen extends StatelessWidget {
                               width: double.infinity,
                               isOutlined: true,
                             ),
+
+                            // Admin Dashboard Button (only for admins)
+                            if (user.role == 'ADMIN') ...[
+                              const SizedBox(height: 12),
+                              CustomButton(
+                                text: 'Admin Dashboard',
+                                onPressed: () {
+                                  Navigator.of(context).pushNamed('/admin');
+                                },
+                                icon: Icons.admin_panel_settings,
+                                width: double.infinity,
+                                backgroundColor: Colors.red.shade600,
+                                foregroundColor: Colors.white,
+                              ),
+                            ],
                           ],
                         ),
                       ),

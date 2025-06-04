@@ -10,6 +10,8 @@ public class UserResponse {
     private String username;
     private String email;
     private String role;
+    private boolean enabled;
+    private int imageCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -21,6 +23,19 @@ public class UserResponse {
         this.username = user.getUsername();
         this.email = user.getEmail();
         this.role = user.getRole().name();
+        this.enabled = user.isEnabled();
+        this.imageCount = 0; // Will be set separately by service layer
+        this.createdAt = user.getCreatedAt();
+        this.updatedAt = user.getUpdatedAt();
+    }
+    
+    public UserResponse(User user, int imageCount) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.role = user.getRole().name();
+        this.enabled = user.isEnabled();
+        this.imageCount = imageCount;
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
     }
@@ -72,5 +87,21 @@ public class UserResponse {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public boolean isEnabled() {
+        return enabled;
+    }
+    
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
+    public int getImageCount() {
+        return imageCount;
+    }
+    
+    public void setImageCount(int imageCount) {
+        this.imageCount = imageCount;
     }
 }

@@ -10,6 +10,7 @@ import 'screens/profile_screen.dart';
 import 'screens/gallery_screen.dart';
 import 'screens/upload_screen.dart';
 import 'screens/users_screen.dart';
+import 'screens/admin_dashboard_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
           '/gallery': (context) => const GalleryScreen(),
           '/upload': (context) => const UploadScreen(),
           '/users': (context) => const UsersScreen(),
+          '/admin': (context) => const AdminDashboardScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),

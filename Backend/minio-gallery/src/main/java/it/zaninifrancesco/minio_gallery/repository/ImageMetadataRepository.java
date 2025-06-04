@@ -61,7 +61,8 @@ public interface ImageMetadataRepository extends JpaRepository<ImageMetadata, UU
      */
     @Query("SELECT DISTINCT im FROM ImageMetadata im JOIN im.tags t WHERE t.name IN :tagNames ORDER BY im.uploadedAt DESC")
     Page<ImageMetadata> findByAnyTags(@Param("tagNames") List<String> tagNames, Pageable pageable);
-      /**
+    
+    /**
      * Cerca immagini per titolo (case-insensitive, partial match)
      */
     @Query("SELECT im FROM ImageMetadata im WHERE LOWER(im.title) LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY im.uploadedAt DESC")
@@ -107,4 +108,10 @@ public interface ImageMetadataRepository extends JpaRepository<ImageMetadata, UU
     @Query("SELECT im FROM ImageMetadata im WHERE im.user = :user AND (LOWER(im.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
            "OR LOWER(im.description) LIKE LOWER(CONCAT('%', :query, '%'))) ORDER BY im.uploadedAt DESC")
     Page<ImageMetadata> findByUserAndTitleOrDescriptionContainingIgnoreCase(@Param("user") User user, @Param("query") String query, Pageable pageable);
+    
+    /**
+     * Calcola la dimensione totale di tutte le immagini nel sistema
+     */
+    @Query("SELECT COALESCE(SUM(im.size), 0) FROM ImageMetadata im")
+    long getTotalImageSize();
 }
