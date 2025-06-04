@@ -52,14 +52,14 @@ public class LikeService {    @Autowired
         if (existingLike.isPresent()) {
             // Unlike
             imageLikeRepository.delete(existingLike.get());
-            return new LikeResponse(false, image.getLikeCount());
+            return new LikeResponse(false, getLikeCount(imageId));
         } else {            // Like
             ImageLike like = new ImageLike();
             like.setImage(image);
             like.setUser(user);
             like.setLikedAt(LocalDateTime.now());
             imageLikeRepository.save(like);
-            return new LikeResponse(true, image.getLikeCount());
+            return new LikeResponse(true, getLikeCount(imageId));
         }
     }
     

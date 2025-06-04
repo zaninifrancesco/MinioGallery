@@ -36,6 +36,9 @@ class _LikeButtonState extends State<LikeButton> with TickerProviderStateMixin {
     super.initState();
     isLiked = widget.initialIsLiked;
     likeCount = widget.initialLikeCount;
+    print(
+      'LikeButton init - imageId: ${widget.imageId}, initialIsLiked: ${widget.initialIsLiked}, initialLikeCount: ${widget.initialLikeCount}',
+    );
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -50,6 +53,10 @@ class _LikeButtonState extends State<LikeButton> with TickerProviderStateMixin {
 
   Future<void> _toggleLike() async {
     if (_isLoading) return;
+
+    print(
+      '_toggleLike called - current state: isLiked=$isLiked, likeCount=$likeCount',
+    );
 
     setState(() {
       _isLoading = true;
@@ -69,8 +76,14 @@ class _LikeButtonState extends State<LikeButton> with TickerProviderStateMixin {
       likeCount += isLiked ? 1 : -1;
     });
 
+    print(
+      'After optimistic update: isLiked=$isLiked, likeCount=$likeCount (was: $previousLiked, $previousCount)',
+    );
+
     // API call
+    print('Calling toggleLike API for imageId: ${widget.imageId}');
     final success = await _likeService.toggleLike(widget.imageId);
+    print('toggleLike API result: $success');
 
     if (!success) {
       // Rollback se fallisce

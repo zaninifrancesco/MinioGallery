@@ -50,6 +50,9 @@ public class ImageService {
       @Autowired
     private MinioService minioService;
     
+    @Autowired
+    private LikeService likeService;
+    
     /**
      * Carica un'immagine con i suoi metadati
      * 
@@ -316,10 +319,7 @@ public class ImageService {
             // Ottieni l'utente autenticato corrente
             String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
             if (currentUsername != null && !currentUsername.equals("anonymousUser")) {
-                User currentUser = userRepository.findByUsername(currentUsername).orElse(null);
-                if (currentUser != null) {
-                    isLikedByCurrentUser = imageMetadata.isLikedByUser(currentUser);
-                }
+                isLikedByCurrentUser = likeService.isLikedByUser(imageMetadata.getId(), currentUsername);
             }
         } catch (Exception e) {
             // Se non c'è un utente autenticato o si verifica un errore, 

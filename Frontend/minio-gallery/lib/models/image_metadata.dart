@@ -44,6 +44,11 @@ class ImageMetadata {
       print('Error parsing date: $e');
       parsedDate = DateTime.now(); // Fallback
     }
+
+    bool isLiked = json['likedByCurrentUser'] as bool? ?? false;
+    print(
+      'Parsing like status: likedByCurrentUser=${json['likedByCurrentUser']} -> isLikedByCurrentUser=$isLiked',
+    );
     return ImageMetadata(
       id: json['id'].toString(), // Convert UUID to String
       title: json['title'] as String,
@@ -55,7 +60,7 @@ class ImageMetadata {
       fileName: json['fileName'] as String?,
       uploaderUsername: json['uploaderUsername'] as String?,
       likeCount: json['likeCount'] as int? ?? 0,
-      isLikedByCurrentUser: json['isLikedByCurrentUser'] as bool? ?? false,
+      isLikedByCurrentUser: isLiked,
     );
   }
   Map<String, dynamic> toJson() {
