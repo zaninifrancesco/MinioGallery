@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/gallery_provider.dart';
 import '../providers/user_provider.dart';
+import '../providers/statistics_provider.dart';
 import '../models/image_metadata.dart';
 import '../widgets/like_button.dart';
 import 'profile_screen.dart';
@@ -266,13 +267,37 @@ class _DashboardTabState extends State<DashboardTab> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildStatItem(context, '0', 'Total Photos'),
-                            _buildStatItem(context, '0', 'Total Likes'),
-                            _buildStatItem(context, '0', 'Participants'),
-                          ],
+                        Consumer<StatisticsProvider>(
+                          builder: (context, statisticsProvider, child) {
+                            // Load statistics automatically when the widget is built
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (!statisticsProvider.hasStatistics &&
+                                  !statisticsProvider.isLoading) {
+                                statisticsProvider.fetchStatistics();
+                              }
+                            });
+
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildStatItem(
+                                  context,
+                                  statisticsProvider.totalPhotosText,
+                                  'Total Photos',
+                                ),
+                                _buildStatItem(
+                                  context,
+                                  statisticsProvider.totalLikesText,
+                                  'Total Likes',
+                                ),
+                                _buildStatItem(
+                                  context,
+                                  statisticsProvider.totalParticipantsText,
+                                  'Participants',
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),

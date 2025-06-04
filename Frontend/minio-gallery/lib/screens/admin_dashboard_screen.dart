@@ -131,18 +131,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           const SizedBox(height: 16),
           LayoutBuilder(
             builder: (context, constraints) {
-              // Responsive grid: più colonne su schermi più larghi
-              int crossAxisCount = 2;
-              if (constraints.maxWidth > 600) crossAxisCount = 3;
-              if (constraints.maxWidth > 900) crossAxisCount = 4;
+              // Responsive grid: più colonne su schermi più larghi per blocchi più piccoli
+              int crossAxisCount = 3;
+              if (constraints.maxWidth > 600) crossAxisCount = 4;
+              if (constraints.maxWidth > 900) crossAxisCount = 5;
 
               return GridView.count(
                 crossAxisCount: crossAxisCount,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 0.9, // Rendiamo le card meno alte
+                mainAxisSpacing: 6,
+                crossAxisSpacing: 6,
+                childAspectRatio: 1.3, // Blocchi più piccoli ma proporzionati
                 children: [
                   _buildStatCard(
                     'Utenti Totali',
@@ -185,17 +185,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             },
           ),
           const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _loadSystemStats,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Aggiorna Statistiche'),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -208,31 +197,31 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     Color color,
   ) {
     return Card(
-      elevation: 3,
+      elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(12), // Riduciamo il padding
+        padding: const EdgeInsets.all(6), // Padding molto ridotto
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24, color: color), // Riduciamo l'icona
-            const SizedBox(height: 6), // Riduciamo lo spazio
+            Icon(icon, size: 45, color: color), // Icona piccola ma visibile
+            const SizedBox(height: 3), // Spazio minimo
             Text(
               value,
               style: TextStyle(
-                fontSize: 18, // Riduciamo il font del valore
+                fontSize: 35, // Font del valore leggibile
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
-            const SizedBox(height: 2), // Riduciamo lo spazio
+            const SizedBox(height: 2), // Spazio minimo
             Text(
               title,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 12, // Font del titolo ancora leggibile
                 color: Colors.grey,
-              ), // Riduciamo il font del titolo
-              maxLines: 2, // Permettiamo due righe per il titolo
+              ),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],

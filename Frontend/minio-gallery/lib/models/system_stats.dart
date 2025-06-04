@@ -20,6 +20,7 @@ class SystemStats {
   factory SystemStats.fromJson(Map<String, dynamic> json) {
     final users = json['users'] as Map<String, dynamic>? ?? {};
     final images = json['images'] as Map<String, dynamic>? ?? {};
+    final likes = json['likes'] as Map<String, dynamic>? ?? {};
 
     // Calcola storage formattato
     final totalSizeMB = images['totalSizeMB'] ?? 0.0;
@@ -40,7 +41,7 @@ class SystemStats {
       totalAdmins: users['admins'] ?? 0,
       totalImages: images['total'] ?? 0,
       totalStorageUsed: formattedStorage,
-      totalLikes: 0, // Non implementato ancora nel backend
+      totalLikes: likes['total'] ?? 0,
     );
   }
 

@@ -181,6 +181,9 @@ public class AdminService {
         // Conteggio immagini
         long totalImages = imageMetadataRepository.count();
         
+        // Conteggio like totali
+        long totalLikes = imageMetadataRepository.getTotalLikes();
+        
         // Dimensione totale delle immagini
         long totalSize = imageMetadataRepository.getTotalImageSize();
         
@@ -198,11 +201,16 @@ public class AdminService {
         imageStats.put("totalSizeBytes", totalSize);
         imageStats.put("totalSizeMB", Math.round(totalSize / (1024.0 * 1024.0) * 100.0) / 100.0);
         
+        // Statistiche like
+        Map<String, Object> likeStats = new HashMap<>();
+        likeStats.put("total", totalLikes);
+        
         stats.put("users", userStats);
         stats.put("images", imageStats);
+        stats.put("likes", likeStats);
         
-        logger.info("System stats generated: {} users, {} images, {}MB total", 
-                   totalUsers, totalImages, stats.get("images"));
+        logger.info("System stats generated: {} users, {} images, {} likes, {}MB total", 
+                   totalUsers, totalImages, totalLikes, imageStats.get("totalSizeMB"));
         
         return stats;
     }

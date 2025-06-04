@@ -114,4 +114,10 @@ public interface ImageMetadataRepository extends JpaRepository<ImageMetadata, UU
      */
     @Query("SELECT COALESCE(SUM(im.size), 0) FROM ImageMetadata im")
     long getTotalImageSize();
+    
+    /**
+     * Calcola il numero totale di like nel sistema
+     */
+    @Query("SELECT COUNT(il) FROM ImageLike il")
+    long getTotalLikes();
 }

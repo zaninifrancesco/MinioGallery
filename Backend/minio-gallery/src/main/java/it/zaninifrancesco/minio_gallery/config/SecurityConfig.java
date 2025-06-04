@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .cors(withDefaults()) // Apply CORS configuration
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/test", "/api/auth/**", "/api/images/view/**").permitAll() // Allow public access to view images
+                                .requestMatchers("/api/test", "/api/auth/**", "/api/images/view/**", "/api/statistics/**").permitAll() // Allow public access to view images and statistics
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only endpoints
                                 .anyRequest().authenticated()
                 )
