@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io' if (dart.library.html) 'dart:html' show File;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -345,7 +344,7 @@ class ImageService {
       final targetMonth = month ?? now.month;
 
       final uri = Uri.parse(
-        '$baseUrl/images/photo-of-month?year=$targetYear&month=$targetMonth',
+        '$baseUrl/likes/photo-of-month?year=$targetYear&month=$targetMonth',
       );
       print('Fetching photo of month from: $uri');
 
@@ -356,7 +355,24 @@ class ImageService {
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        return ImageMetadata.fromJson(jsonData);
+        final imageId = jsonData['imageId'].toString();
+
+        // Ottieni lo stato del like per la foto del mese
+        final isLiked = await getLikeStatus(imageId);
+
+        // Backend returns LeaderboardEntry, convert to ImageMetadata
+        return ImageMetadata(
+          id: imageId,
+          title: jsonData['title'] as String,
+          description: '', // LeaderboardEntry doesn't have description
+          imageUrl: jsonData['imageUrl'] as String,
+          uploadedAt:
+              DateTime.now(), // LeaderboardEntry doesn't have uploadedAt
+          tags: [], // LeaderboardEntry doesn't have tags
+          uploaderUsername: jsonData['uploaderUsername'] as String?,
+          likeCount: jsonData['likeCount'] as int? ?? 0,
+          isLikedByCurrentUser: isLiked, // Ora otteniamo il vero stato
+        );
       } else {
         print('Failed to load photo of month: ${response.statusCode}');
         return null;
@@ -382,7 +398,7 @@ class ImageService {
       final targetMonth = month ?? now.month;
 
       final uri = Uri.parse(
-        '$baseUrl/images/leaderboard?year=$targetYear&month=$targetMonth&limit=$limit',
+        '$baseUrl/likes/leaderboard?year=$targetYear&month=$targetMonth&limit=$limit',
       );
       print('Fetching monthly leaderboard from: $uri');
 
@@ -392,8 +408,42 @@ class ImageService {
       print('Monthly leaderboard response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return GalleryResponse.fromJson(jsonData);
+        final List<dynamic> jsonList = json.decode(response.body);
+
+        // Prima creiamo la lista delle immagini senza lo stato dei like
+        final List<ImageMetadata> images = [];
+
+        // Per ogni elemento della leaderboard, otteniamo anche lo stato del like
+        for (final json in jsonList) {
+          final imageId = json['imageId'].toString();
+          final isLiked = await getLikeStatus(imageId);
+
+          images.add(
+            ImageMetadata(
+              id: imageId,
+              title: json['title'] as String,
+              description: '', // LeaderboardEntry doesn't have description
+              imageUrl: json['imageUrl'] as String,
+              uploadedAt:
+                  DateTime.now(), // LeaderboardEntry doesn't have uploadedAt
+              tags: [], // LeaderboardEntry doesn't have tags
+              uploaderUsername: json['uploaderUsername'] as String?,
+              likeCount: json['likeCount'] as int? ?? 0,
+              isLikedByCurrentUser: isLiked, // Ora otteniamo il vero stato
+            ),
+          );
+        }
+
+        // Create a mock GalleryResponse to maintain compatibility
+        return GalleryResponse(
+          content: images,
+          totalElements: images.length,
+          totalPages: 1,
+          page: 0,
+          size: images.length,
+          first: true,
+          last: true,
+        );
       } else {
         print('Failed to load monthly leaderboard: ${response.statusCode}');
         return null;
@@ -401,6 +451,26 @@ class ImageService {
     } catch (e) {
       print('Error loading monthly leaderboard: $e');
       return null;
+    }
+  }
+
+  // Ottieni lo stato del like per una singola immagine
+  Future<bool> getLikeStatus(String imageId) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) return false;
+
+      final uri = Uri.parse('$baseUrl/likes/status/$imageId');
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return jsonData['isLiked'] as bool? ?? false;
+      }
+      return false;
+    } catch (e) {
+      print('Error getting like status: $e');
+      return false;
     }
   }
 }

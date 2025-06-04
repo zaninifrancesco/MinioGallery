@@ -82,202 +82,230 @@ class ImageDetailScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            Container(
-              width: double.infinity,
-              height: 300,
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Theme.of(context).colorScheme.surfaceVariant,
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Image.network(
-                image.imageUrl,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value:
-                          loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.broken_image, size: 48),
-                        SizedBox(height: 8),
-                        Text('Image not available'),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Image Info
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    image.title,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Image with improved layout
+                Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.95,
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
                   ),
-                  const SizedBox(height: 8), // Upload Date and Like Button
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.schedule,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Uploaded ${_formatDate(image.uploadedAt)}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const Spacer(),
-                      LikeButton(
-                        imageId: image.id,
-                        initialLikeCount: image.likeCount,
-                        initialIsLiked: image.isLikedByCurrentUser,
-                        isCompact: false,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-
-                  // Author
-                  if (image.uploaderUsername != null) ...[
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.person,
-                          size: 16,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.network(
+                    image.imageUrl,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value:
+                              loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'By ${image.uploaderUsername}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image, size: 48),
+                            SizedBox(height: 8),
+                            Text('Image not available'),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Image Info with centered layout and max width
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        image.title,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Upload Date and Like Button
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.schedule,
+                            size: 16,
                             color:
                                 Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Uploaded ${_formatDate(image.uploadedAt)}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const Spacer(),
+                          LikeButton(
+                            imageId: image.id,
+                            initialLikeCount: image.likeCount,
+                            initialIsLiked: image.isLikedByCurrentUser,
+                            isCompact: false,
+                          ),
+                        ],
+                      ),
+
+                      // Author
+                      if (image.uploaderUsername != null) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              size: 16,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'By ${image.uploaderUsername}',
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
-                  const SizedBox(height: 16),
 
-                  // Description
-                  if (image.description.isNotEmpty) ...[
-                    Text(
-                      'Description',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      image.description,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                      // Description
+                      if (image.description.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          'Description',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          image.description,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ],
 
-                  // Tags
-                  if (image.tags.isNotEmpty) ...[
-                    Text(
-                      'Tags',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children:
-                          image.tags
-                              .map(
-                                (tag) => Chip(
-                                  label: Text(tag),
-                                  backgroundColor:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer,
-                                  labelStyle: TextStyle(
-                                    color:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimaryContainer,
+                      // Tags
+                      if (image.tags.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          'Tags',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children:
+                              image.tags
+                                  .map(
+                                    (tag) => Chip(
+                                      label: Text(tag),
+                                      backgroundColor:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer,
+                                      labelStyle: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onPrimaryContainer,
+                                      ),
+                                      side: BorderSide.none,
+                                    ),
+                                  )
+                                  .toList(),
+                        ),
+                      ],
+
+                      const SizedBox(height: 32),
+
+                      // Actions
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Share',
+                              onPressed: () {
+                                // TODO: Implement share functionality
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Share feature coming soon!'),
                                   ),
-                                  side: BorderSide.none,
-                                ),
-                              )
-                              .toList(),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
-
-                  // Actions
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomButton(
-                          text: 'Share',
-                          onPressed: () {
-                            // TODO: Implement share functionality
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Share feature coming soon!'),
-                              ),
-                            );
-                          },
-                          icon: Icons.share,
-                          isOutlined: true,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: CustomButton(
-                          text: 'Download',
-                          onPressed: () {
-                            // TODO: Implement download functionality
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Download feature coming soon!'),
-                              ),
-                            );
-                          },
-                          icon: Icons.download,
-                        ),
+                                );
+                              },
+                              icon: Icons.share,
+                              isOutlined: true,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Download',
+                              onPressed: () {
+                                // TODO: Implement download functionality
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Download feature coming soon!',
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: Icons.download,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

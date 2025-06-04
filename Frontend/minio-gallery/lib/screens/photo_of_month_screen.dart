@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:minio_gallery/models/gallery_response.dart';
-import 'package:provider/provider.dart';
 import '../models/image_metadata.dart';
 import '../services/image_service.dart';
 import '../widgets/like_button.dart';
@@ -57,7 +56,7 @@ class _PhotoOfMonthScreenState extends State<PhotoOfMonthScreen> {
       final leaderboardFuture = _imageService.getMonthlyLeaderboard(
         year: _selectedYear,
         month: _selectedMonth,
-        limit: 10,
+        limit: 5,
       );
 
       final results = await Future.wait([photoFuture, leaderboardFuture]);
@@ -332,14 +331,35 @@ class _PhotoOfMonthScreenState extends State<PhotoOfMonthScreen> {
                                         Theme.of(context).colorScheme.primary,
                                   ),
                                   const SizedBox(width: 12),
-                                  Text(
-                                    'Monthly Leaderboard',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Top 5 Monthly Photos',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleLarge?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Most liked photos this month',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.bodySmall?.copyWith(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -497,6 +517,7 @@ class _PhotoOfMonthScreenState extends State<PhotoOfMonthScreen> {
 
   Widget _buildLeaderboardItem(ImageMetadata image, int position) {
     final isTop3 = position <= 3;
+
     final positionColor =
         position == 1
             ? Colors.amber[700]
@@ -504,7 +525,7 @@ class _PhotoOfMonthScreenState extends State<PhotoOfMonthScreen> {
             ? Colors.grey[600]
             : position == 3
             ? Colors.brown[600]
-            : Theme.of(context).colorScheme.onSurfaceVariant;
+            : Theme.of(context).colorScheme.primary;
 
     final positionIcon =
         position == 1
@@ -513,82 +534,212 @@ class _PhotoOfMonthScreenState extends State<PhotoOfMonthScreen> {
             ? Icons.military_tech
             : position == 3
             ? Icons.workspace_premium
-            : null;
+            : Icons.star;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      elevation: isTop3 ? 2 : 1,
-      child: ListTile(
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color:
-                    isTop3
-                        ? positionColor?.withOpacity(0.1)
-                        : Colors.transparent,
-                shape: BoxShape.circle,
-                border:
-                    isTop3 ? Border.all(color: positionColor!, width: 2) : null,
-              ),
-              child: Center(
-                child:
-                    positionIcon != null
-                        ? Icon(positionIcon, color: positionColor, size: 18)
-                        : Text(
-                          '$position',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: positionColor,
-                          ),
-                        ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                image.imageUrl,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 50,
-                    height: 50,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    child: const Icon(Icons.broken_image, size: 24),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        title: Text(
-          image.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle:
-            image.uploaderUsername != null
-                ? Text('by ${image.uploaderUsername}')
+    final backgroundColor =
+        position == 1
+            ? Colors.amber.withOpacity(0.1)
+            : position == 2
+            ? Colors.grey.withOpacity(0.1)
+            : position == 3
+            ? Colors.brown.withOpacity(0.1)
+            : Theme.of(context).colorScheme.primary.withOpacity(0.05);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient:
+            isTop3
+                ? LinearGradient(
+                  colors: [backgroundColor, backgroundColor.withOpacity(0.3)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
                 : null,
-        trailing: LikeButton(
-          imageId: image.id,
-          initialLikeCount: image.likeCount,
-          initialIsLiked: image.isLikedByCurrentUser,
-          isCompact: true,
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ImageDetailScreen(image: image),
+        border:
+            isTop3
+                ? Border.all(color: positionColor!.withOpacity(0.3), width: 2)
+                : null,
+      ),
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: isTop3 ? 4 : 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient:
+                isTop3
+                    ? LinearGradient(
+                      colors: [
+                        backgroundColor.withOpacity(0.1),
+                        Colors.transparent,
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    )
+                    : null,
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(12),
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Position indicator
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: positionColor!, width: 2),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      positionIcon,
+                      color: positionColor,
+                      size: isTop3 ? 20 : 18,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Image thumbnail
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border:
+                        isTop3
+                            ? Border.all(
+                              color: positionColor.withOpacity(0.3),
+                              width: 2,
+                            )
+                            : null,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      image.imageUrl,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 60,
+                          height: 60,
+                          color: Theme.of(context).colorScheme.surfaceVariant,
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 30,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    image.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: isTop3 ? FontWeight.bold : FontWeight.w600,
+                      color: isTop3 ? positionColor : null,
+                    ),
+                  ),
+                ),
+                if (position == 1)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.amber,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Text(
+                      'WINNER',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (image.uploaderUsername != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'by ${image.uploaderUsername}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: positionColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: positionColor.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Text(
+                        '#$position',
+                        style: TextStyle(
+                          color: positionColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    LikeButton(
+                      imageId: image.id,
+                      initialLikeCount: image.likeCount,
+                      initialIsLiked: image.isLikedByCurrentUser,
+                      isCompact: true,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ImageDetailScreen(image: image),
+                ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
