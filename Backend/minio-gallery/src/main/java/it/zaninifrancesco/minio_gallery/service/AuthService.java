@@ -15,6 +15,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class AuthService {
 
@@ -127,5 +133,12 @@ public class AuthService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return new UserResponse(user);
+    }
+
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(UserResponse::new)
+                .collect(Collectors.toList());
     }
 }

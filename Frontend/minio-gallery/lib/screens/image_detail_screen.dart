@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/image_metadata.dart';
 import '../providers/gallery_provider.dart';
 import '../widgets/custom_button.dart';
+import '../widgets/like_button.dart';
 
 class ImageDetailScreen extends StatelessWidget {
   final ImageMetadata image;
@@ -137,9 +138,7 @@ class ImageDetailScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-
-                  // Upload Date
+                  const SizedBox(height: 8), // Upload Date and Like Button
                   Row(
                     children: [
                       Icon(
@@ -154,8 +153,39 @@ class ImageDetailScreen extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      const Spacer(),
+                      LikeButton(
+                        imageId: image.id,
+                        initialLikeCount: image.likeCount,
+                        initialIsLiked: image.isLikedByCurrentUser,
+                        isCompact: false,
+                      ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+
+                  // Author
+                  if (image.uploaderUsername != null) ...[
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'By ${image.uploaderUsername}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 16),
 
                   // Description

@@ -302,4 +302,105 @@ class ImageService {
       return null;
     }
   }
+
+  // Ottieni immagini di un utente specifico
+  Future<GalleryResponse?> getUserImages({
+    required String username,
+    int page = 0,
+    int size = 12,
+  }) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) throw Exception('No auth token');
+
+      final uri = Uri.parse(
+        '$baseUrl/images/user/$username?page=$page&size=$size',
+      );
+      print('Fetching user images from: $uri');
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('User images response status: ${response.statusCode}');
+      print('User images response body: ${response.body}');
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return GalleryResponse.fromJson(jsonData);
+      } else {
+        print('Failed to load user images: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading user images: $e');
+      return null;
+    }
+  }
+
+  // Ottieni la foto del mese
+  Future<ImageMetadata?> getPhotoOfMonth({int? year, int? month}) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) throw Exception('No auth token');
+
+      final now = DateTime.now();
+      final targetYear = year ?? now.year;
+      final targetMonth = month ?? now.month;
+
+      final uri = Uri.parse(
+        '$baseUrl/images/photo-of-month?year=$targetYear&month=$targetMonth',
+      );
+      print('Fetching photo of month from: $uri');
+
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('Photo of month response status: ${response.statusCode}');
+      print('Photo of month response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return ImageMetadata.fromJson(jsonData);
+      } else {
+        print('Failed to load photo of month: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading photo of month: $e');
+      return null;
+    }
+  }
+
+  // Ottieni la classifica mensile delle foto più votate
+  Future<GalleryResponse?> getMonthlyLeaderboard({
+    int? year,
+    int? month,
+    int limit = 10,
+  }) async {
+    try {
+      final token = await _getAuthToken();
+      if (token == null) throw Exception('No auth token');
+
+      final now = DateTime.now();
+      final targetYear = year ?? now.year;
+      final targetMonth = month ?? now.month;
+
+      final uri = Uri.parse(
+        '$baseUrl/images/leaderboard?year=$targetYear&month=$targetMonth&limit=$limit',
+      );
+      print('Fetching monthly leaderboard from: $uri');
+
+      final response = await http.get(uri, headers: _getHeaders(token));
+
+      print('Monthly leaderboard response status: ${response.statusCode}');
+      print('Monthly leaderboard response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return GalleryResponse.fromJson(jsonData);
+      } else {
+        print('Failed to load monthly leaderboard: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error loading monthly leaderboard: $e');
+      return null;
+    }
+  }
 }

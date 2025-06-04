@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/gallery_provider.dart';
+import '../providers/user_provider.dart';
 import '../models/image_metadata.dart';
+import '../widgets/like_button.dart';
 import 'profile_screen.dart';
 import 'image_detail_screen.dart';
+import 'user_gallery_screen.dart';
+import 'photo_of_month_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           DashboardTab(onNavigateToTab: _navigateToTab),
           const GalleryTab(),
+          const PhotoOfMonthScreen(),
           const ProfileScreen(),
         ],
       ),
@@ -66,6 +71,11 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Gallery',
           ),
           NavigationDestination(
+            icon: Icon(Icons.emoji_events_outlined),
+            selectedIcon: Icon(Icons.emoji_events),
+            label: 'Photo of Month',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
@@ -76,11 +86,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class DashboardTab extends StatelessWidget {
+class DashboardTab extends StatefulWidget {
   final Function(int)? onNavigateToTab;
 
   const DashboardTab({super.key, this.onNavigateToTab});
 
+  @override
+  State<DashboardTab> createState() => _DashboardTabState();
+}
+
+class _DashboardTabState extends State<DashboardTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,7 +166,7 @@ class DashboardTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Ready to manage your photo collection?',
+                          'Join the monthly photo contest and share your best shots!',
                           style: Theme.of(
                             context,
                           ).textTheme.bodyLarge?.copyWith(
@@ -164,9 +179,7 @@ class DashboardTab extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Quick Actions
+                const SizedBox(height: 24), // Quick Actions
                 Text(
                   'Quick Actions',
                   style: Theme.of(
@@ -180,7 +193,7 @@ class DashboardTab extends StatelessWidget {
                       child: _buildActionCard(
                         context,
                         'Upload Photos',
-                        'Add new images to your gallery',
+                        'Share your photos in the contest',
                         Icons.cloud_upload_outlined,
                         () {
                           // Navigate to upload screen
@@ -193,17 +206,33 @@ class DashboardTab extends StatelessWidget {
                       child: _buildActionCard(
                         context,
                         'View Gallery',
-                        'Browse your photo collection',
+                        'Browse all employee photos',
                         Icons.photo_library_outlined,
                         () {
                           // Switch to gallery tab
-                          if (onNavigateToTab != null) {
-                            onNavigateToTab!(1);
+                          if (widget.onNavigateToTab != null) {
+                            widget.onNavigateToTab!(1);
                           }
                         },
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: _buildActionCard(
+                    context,
+                    'Photo of the Month',
+                    'View winners and monthly leaderboard',
+                    Icons.emoji_events_outlined,
+                    () {
+                      // Switch to Photo of Month tab
+                      if (widget.onNavigateToTab != null) {
+                        widget.onNavigateToTab!(2);
+                      }
+                    },
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -226,7 +255,7 @@ class DashboardTab extends StatelessWidget {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              'Your Gallery Stats',
+                              'Company Photo Contest',
                               style: Theme.of(
                                 context,
                               ).textTheme.titleLarge?.copyWith(
@@ -240,14 +269,194 @@ class DashboardTab extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildStatItem(context, '0', 'Photos'),
-                            _buildStatItem(context, '0', 'Albums'),
-                            _buildStatItem(context, '0 MB', 'Storage'),
+                            _buildStatItem(context, '0', 'Total Photos'),
+                            _buildStatItem(context, '0', 'Total Likes'),
+                            _buildStatItem(context, '0', 'Participants'),
                           ],
                         ),
                       ],
                     ),
                   ),
+                ), // Users List Section
+                const SizedBox(height: 24),
+                Consumer<UserProvider>(
+                  builder: (context, userProvider, child) {
+                    // Load users automatically when the widget is built
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (userProvider.users.isEmpty &&
+                          !userProvider.isLoading) {
+                        userProvider.loadUsers();
+                      }
+                    });
+
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.people_outline,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Browse Employees',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            if (userProvider.isLoading)
+                              const Center(child: CircularProgressIndicator())
+                            else if (userProvider.errorMessage != null)
+                              Center(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline,
+                                      color:
+                                          Theme.of(context).colorScheme.error,
+                                      size: 48,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      userProvider.errorMessage!,
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(context).colorScheme.error,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else if (userProvider.users.isEmpty)
+                              const Center(
+                                child: Column(
+                                  children: [
+                                    Icon(
+                                      Icons.people_outline,
+                                      size: 48,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text('No users found'),
+                                  ],
+                                ),
+                              )
+                            else
+                              SizedBox(
+                                height: 200,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: userProvider.users.length,
+                                  itemBuilder: (context, index) {
+                                    final user = userProvider.users[index];
+                                    return Container(
+                                      width: 120,
+                                      margin: const EdgeInsets.only(right: 16),
+                                      child: Card(
+                                        elevation: 1,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder:
+                                                    (context) =>
+                                                        UserGalleryScreen(
+                                                          user: user,
+                                                        ),
+                                              ),
+                                            );
+                                          },
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                CircleAvatar(
+                                                  radius: 24,
+                                                  backgroundColor:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
+                                                  child: Icon(
+                                                    Icons.person,
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.onPrimary,
+                                                    size: 24,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  user.username,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                  textAlign: TextAlign.center,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  user.email,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface
+                                                            .withOpacity(0.6),
+                                                      ),
+                                                  textAlign: TextAlign.center,
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -663,6 +872,14 @@ class _GalleryTabState extends State<GalleryTab> {
                             ),
                           ),
                         ],
+                        const Spacer(),
+                        LikeButton(
+                          imageId: image.id,
+                          initialLikeCount: image.likeCount,
+                          initialIsLiked: image.isLikedByCurrentUser,
+                          isCompact: true,
+                          iconColor: Colors.white,
+                        ),
                       ],
                     ),
                     if (image.tags.isNotEmpty) ...[

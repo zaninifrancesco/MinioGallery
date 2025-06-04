@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -77,5 +78,16 @@ public class AuthController {
         // In a JWT stateless implementation, logout is handled client-side
         // by removing the token from storage
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+    
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            List<UserResponse> users = authService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

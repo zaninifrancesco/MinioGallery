@@ -53,8 +53,7 @@ public class ImageMetadata {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    
-    // Relazione Many-to-Many con Tag
+      // Relazione Many-to-Many con Tag
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
         name = "image_tags",
@@ -62,6 +61,10 @@ public class ImageMetadata {
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
+    
+    // Relazione One-to-Many con ImageLike
+    @OneToMany(mappedBy = "image", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ImageLike> likes = new HashSet<>();
     
     // Constructors
     public ImageMetadata() {
@@ -167,8 +170,7 @@ public class ImageMetadata {
     public void setUser(User user) {
         this.user = user;
     }
-    
-    public Set<Tag> getTags() {
+      public Set<Tag> getTags() {
         return tags;
     }
     
@@ -176,7 +178,14 @@ public class ImageMetadata {
         this.tags = tags;
     }
     
-    // Utility methods for managing tags
+    public Set<ImageLike> getLikes() {
+        return likes;
+    }
+    
+    public void setLikes(Set<ImageLike> likes) {
+        this.likes = likes;
+    }
+      // Utility methods for managing tags
     public void addTag(Tag tag) {
         this.tags.add(tag);
         tag.getImages().add(this);
@@ -185,6 +194,26 @@ public class ImageMetadata {
     public void removeTag(Tag tag) {
         this.tags.remove(tag);
         tag.getImages().remove(this);
+    }
+    
+    // Utility methods for managing likes
+    public void addLike(ImageLike like) {
+        this.likes.add(like);
+        like.setImage(this);
+    }
+    
+    public void removeLike(ImageLike like) {
+        this.likes.remove(like);
+        like.setImage(null);
+    }
+    
+    public int getLikeCount() {
+        return this.likes != null ? this.likes.size() : 0;
+    }
+    
+    public boolean isLikedByUser(User user) {
+        return this.likes != null && this.likes.stream()
+                .anyMatch(like -> like.getUser().equals(user));
     }
     
     @Override

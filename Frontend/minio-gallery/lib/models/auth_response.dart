@@ -10,12 +10,15 @@ class AuthResponse {
     required this.refreshToken,
     required this.user,
   });
-
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       token: json['token'] ?? '',
       refreshToken: json['refreshToken'] ?? '',
-      user: User.fromJson(json['user'] ?? {}),
+      user: User.fromJson({
+        'username': json['username'] ?? '',
+        'email': json['email'] ?? '',
+        'role': json['role'] ?? '',
+      }),
     );
   }
 

@@ -6,7 +6,6 @@ import '../services/image_service.dart';
 
 class GalleryProvider extends ChangeNotifier {
   final ImageService _imageService = ImageService();
-
   List<ImageMetadata> _images = [];
   bool _isLoading = false;
   bool _isUploading = false;
@@ -14,6 +13,14 @@ class GalleryProvider extends ChangeNotifier {
   int _currentPage = 0;
   bool _hasMoreImages = true;
   int _totalImages = 0;
+
+  // User-specific gallery state
+  List<ImageMetadata> _userImages = [];
+  bool _isLoadingUserImages = false;
+  int _userCurrentPage = 0;
+  bool _hasMoreUserImages = true;
+  int _userTotalImages = 0;
+  String? _currentUsername;
 
   // Getters
   List<ImageMetadata> get images => _images;
@@ -23,6 +30,14 @@ class GalleryProvider extends ChangeNotifier {
   int get currentPage => _currentPage;
   bool get hasMoreImages => _hasMoreImages;
   int get totalImages => _totalImages;
+
+  // User-specific getters
+  List<ImageMetadata> get userImages => _userImages;
+  bool get isLoadingUserImages => _isLoadingUserImages;
+  int get userCurrentPage => _userCurrentPage;
+  bool get hasMoreUserImages => _hasMoreUserImages;
+  int get userTotalImages => _userTotalImages;
+  String? get currentUsername => _currentUsername;
 
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -36,6 +51,11 @@ class GalleryProvider extends ChangeNotifier {
 
   void _setError(String? error) {
     _errorMessage = error;
+    notifyListeners();
+  }
+
+  void _setUserLoading(bool loading) {
+    _isLoadingUserImages = loading;
     notifyListeners();
   }
 
@@ -241,6 +261,54 @@ class GalleryProvider extends ChangeNotifier {
     _setError(null);
   }
 
+  // Carica galleria di un utente specifico (prima pagina)
+  Future<void> loadUserGallery(String username, {bool refresh = false}) async {
+    if (refresh || _currentUsername != username) {
+      _userImages.clear();
+      _userCurrentPage = 0;
+      _hasMoreUserImages = true;
+      _currentUsername = username;
+    }
+
+    if (_isLoadingUserImages || !_hasMoreUserImages) return;
+
+    _setUserLoading(true);
+    _setError(null);
+
+    try {
+      final response = await _imageService.getUserImages(
+        username: username,
+        page: _userCurrentPage,
+        size: 12,
+      );
+
+      if (response != null) {
+        if (_userCurrentPage == 0) {
+          _userImages = response.content;
+        } else {
+          _userImages.addAll(response.content);
+        }
+
+        _userTotalImages = response.totalElements;
+        _hasMoreUserImages = !response.last;
+        _userCurrentPage++;
+      } else {
+        _setError('Failed to load user gallery');
+      }
+    } catch (e) {
+      _setError('Error loading user gallery: $e');
+    }
+
+    _setUserLoading(false);
+  } // Carica più immagini utente (paginazione)
+
+  Future<void> loadMoreUserImages([String? username]) async {
+    final targetUsername = username ?? _currentUsername;
+    if (!_hasMoreUserImages || _isLoadingUserImages || targetUsername == null)
+      return;
+    await loadUserGallery(targetUsername);
+  }
+
   // Reset provider
   void reset() {
     _images.clear();
@@ -250,6 +318,15 @@ class GalleryProvider extends ChangeNotifier {
     _isLoading = false;
     _isUploading = false;
     _errorMessage = null;
+
+    // Reset user-specific state
+    _userImages.clear();
+    _userCurrentPage = 0;
+    _hasMoreUserImages = true;
+    _userTotalImages = 0;
+    _isLoadingUserImages = false;
+    _currentUsername = null;
+
     notifyListeners();
   }
 }

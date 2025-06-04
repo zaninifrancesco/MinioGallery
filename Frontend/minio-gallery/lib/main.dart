@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/gallery_provider.dart';
+import 'providers/user_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/gallery_screen.dart';
 import 'screens/upload_screen.dart';
+import 'screens/users_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,6 +26,7 @@ class MyApp extends StatelessWidget {
           create: (context) => AuthProvider()..initializeAuth(),
         ),
         ChangeNotifierProvider(create: (context) => GalleryProvider()),
+        ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp(
         title: 'MinioGallery',
@@ -52,6 +55,7 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => const ProfileScreen(),
           '/gallery': (context) => const GalleryScreen(),
           '/upload': (context) => const UploadScreen(),
+          '/users': (context) => const UsersScreen(),
         },
         debugShowCheckedModeBanner: false,
       ),

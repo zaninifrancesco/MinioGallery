@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,11 +45,9 @@ public class ImageService {
     
     @Autowired
     private TagRepository tagRepository;
-    
-    @Autowired
+      @Autowired
     private UserRepository userRepository;
-    
-    @Autowired
+      @Autowired
     private MinioService minioService;
     
     /**
@@ -295,8 +294,7 @@ public class ImageService {
         
         return tags;
     }
-    
-    /**
+      /**
      * Crea un ImageResponse da un ImageMetadata
      */
     private ImageResponse createImageResponse(ImageMetadata imageMetadata) {
@@ -309,7 +307,26 @@ public class ImageService {
                 .sorted()
                 .collect(Collectors.toList());
         
-        return new ImageResponse(
+        // Ottieni like count
+        int likeCount = imageMetadata.getLikeCount();
+        
+        // Determina se l'utente corrente ha messo like
+        boolean isLikedByCurrentUser = false;
+        try {
+            // Ottieni l'utente autenticato corrente
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+            if (currentUsername != null && !currentUsername.equals("anonymousUser")) {
+                User currentUser = userRepository.findByUsername(currentUsername).orElse(null);
+                if (currentUser != null) {
+                    isLikedByCurrentUser = imageMetadata.isLikedByUser(currentUser);
+                }
+            }
+        } catch (Exception e) {
+            // Se non c'è un utente autenticato o si verifica un errore, 
+            // isLikedByCurrentUser rimane false
+        }
+        
+        ImageResponse response = new ImageResponse(
                 imageMetadata.getId(),
                 imageMetadata.getTitle(),
                 imageMetadata.getDescription(),
@@ -322,6 +339,12 @@ public class ImageService {
                 imageMetadata.getUser().getUsername(),
                 imageMetadata.getUploadedAt()
         );
+        
+        // Imposta le informazioni sui like
+        response.setLikeCount(likeCount);
+        response.setLikedByCurrentUser(isLikedByCurrentUser);
+        
+        return response;
     }
     
     /**

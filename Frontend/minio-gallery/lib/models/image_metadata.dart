@@ -8,6 +8,8 @@ class ImageMetadata {
   final String? presignedUrl; // Optional, for backward compatibility
   final String? fileName; // Added to match backend
   final String? uploaderUsername; // Added to match backend
+  final int likeCount; // Added for like system
+  final bool isLikedByCurrentUser; // Added for like system
 
   ImageMetadata({
     required this.id,
@@ -19,6 +21,8 @@ class ImageMetadata {
     this.presignedUrl,
     this.fileName,
     this.uploaderUsername,
+    this.likeCount = 0,
+    this.isLikedByCurrentUser = false,
   });
   factory ImageMetadata.fromJson(Map<String, dynamic> json) {
     print('ImageMetadata.fromJson received: $json');
@@ -40,7 +44,6 @@ class ImageMetadata {
       print('Error parsing date: $e');
       parsedDate = DateTime.now(); // Fallback
     }
-
     return ImageMetadata(
       id: json['id'].toString(), // Convert UUID to String
       title: json['title'] as String,
@@ -51,9 +54,10 @@ class ImageMetadata {
       presignedUrl: json['presignedUrl'] as String?,
       fileName: json['fileName'] as String?,
       uploaderUsername: json['uploaderUsername'] as String?,
+      likeCount: json['likeCount'] as int? ?? 0,
+      isLikedByCurrentUser: json['isLikedByCurrentUser'] as bool? ?? false,
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -66,6 +70,8 @@ class ImageMetadata {
       'presignedUrl': presignedUrl,
       'fileName': fileName,
       'uploaderUsername': uploaderUsername,
+      'likeCount': likeCount,
+      'isLikedByCurrentUser': isLikedByCurrentUser,
     };
   }
 }

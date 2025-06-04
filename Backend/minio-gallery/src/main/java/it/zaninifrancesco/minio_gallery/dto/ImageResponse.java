@@ -18,10 +18,11 @@ public class ImageResponse {
     private String fileName;
     private String originalFileName;
     private String contentType;
-    private Long size;
-    private String imageUrl; // URL presigned per accedere all'immagine
+    private Long size;    private String imageUrl; // URL presigned per accedere all'immagine
     private List<String> tags;
     private String uploaderUsername;
+    private int likeCount;
+    private boolean isLikedByCurrentUser;
     
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime uploadedAt;
@@ -130,9 +131,24 @@ public class ImageResponse {
     public LocalDateTime getUploadedAt() {
         return uploadedAt;
     }
-    
-    public void setUploadedAt(LocalDateTime uploadedAt) {
+      public void setUploadedAt(LocalDateTime uploadedAt) {
         this.uploadedAt = uploadedAt;
+    }
+    
+    public int getLikeCount() {
+        return likeCount;
+    }
+    
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
+    
+    public boolean isLikedByCurrentUser() {
+        return isLikedByCurrentUser;
+    }
+    
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) {
+        isLikedByCurrentUser = likedByCurrentUser;
     }
     
     @Override
