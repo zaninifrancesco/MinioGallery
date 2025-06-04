@@ -24,7 +24,13 @@ class LikeService {
   Future<bool> toggleLike(String imageId) async {
     try {
       final token = await _getAuthToken();
-      if (token == null) throw Exception('No auth token');
+      print('LikeService: Toggling like for imageId: $imageId');
+      print('LikeService: Token available: ${token != null}');
+
+      if (token == null) {
+        print('LikeService: No auth token available');
+        return false;
+      }
 
       final uri = Uri.parse('$baseUrl/likes/toggle/$imageId');
       final response = await http.post(uri, headers: _getHeaders(token));
@@ -43,17 +49,23 @@ class LikeService {
   Future<Map<String, dynamic>> getLikeStatus(String imageId) async {
     try {
       final token = await _getAuthToken();
-      if (token == null) throw Exception('No auth token');
+      print('LikeService: Getting like status for imageId: $imageId');
+      print('LikeService: Token available: ${token != null}');
 
       final uri = Uri.parse('$baseUrl/likes/status/$imageId');
       final response = await http.get(uri, headers: _getHeaders(token));
 
+      print('LikeService: Response status: ${response.statusCode}');
+      print('LikeService: Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return {
+        final result = {
           'liked': data['liked'] as bool? ?? false,
           'likeCount': data['likeCount'] as int? ?? 0,
         };
+        print('LikeService: Parsed result: $result');
+        return result;
       } else {
         print('Failed to get like status: ${response.statusCode}');
         return {'liked': false, 'likeCount': 0};

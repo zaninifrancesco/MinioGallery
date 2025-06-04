@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../services/like_service.dart';
 
 class LikeButton extends StatefulWidget {
@@ -43,12 +42,49 @@ class _LikeButtonState extends State<LikeButton> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
+    // Verifica automaticamente lo stato del like all'inizializzazione
+    // Aggiungi un piccolo delay per permettere al widget di essere completamente inizializzato
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _verifyLikeStatus();
+    });
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  // Verifica lo stato del like dal server
+  Future<void> _verifyLikeStatus() async {
+    try {
+      print('LikeButton: Verifying like status for imageId: ${widget.imageId}');
+      final status = await _likeService.getLikeStatus(widget.imageId);
+      final serverIsLiked = status['liked'] as bool;
+      final serverLikeCount = status['likeCount'] as int;
+
+      print(
+        'LikeButton: Server response - isLiked: $serverIsLiked, likeCount: $serverLikeCount',
+      );
+      print(
+        'LikeButton: Current state - isLiked: $isLiked, likeCount: $likeCount',
+      );
+
+      // Aggiorna lo stato sempre per assicurarsi che sia sincronizzato con il server
+      if (mounted) {
+        setState(() {
+          isLiked = serverIsLiked;
+          likeCount = serverLikeCount;
+        });
+        print(
+          'LikeButton: Updated status from server - isLiked: $isLiked, likeCount: $likeCount',
+        );
+      }
+    } catch (e) {
+      print('Error verifying like status: $e');
+      // In caso di errore, mantieni lo stato iniziale
+    }
   }
 
   Future<void> _toggleLike() async {
@@ -96,14 +132,38 @@ class _LikeButtonState extends State<LikeButton> with TickerProviderStateMixin {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Failed to ${previousLiked ? 'unlike' : 'like'} image',
+              'Failed to ${previousLiked ? 'unlike' : 'like'} image. Please login to like images.',
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
-    } else if (widget.onLikeChanged != null) {
-      widget.onLikeChanged!(isLiked, likeCount);
+    } else {
+      // Verifica lo stato reale dal server dopo il toggle
+      try {
+        final status = await _likeService.getLikeStatus(widget.imageId);
+        final actualIsLiked = status['liked'] as bool;
+        final actualLikeCount = status['likeCount'] as int;
+
+        setState(() {
+          isLiked = actualIsLiked;
+          likeCount = actualLikeCount;
+        });
+
+        print(
+          'Updated state from server after toggle: isLiked=$isLiked, likeCount=$likeCount',
+        );
+
+        if (widget.onLikeChanged != null) {
+          widget.onLikeChanged!(isLiked, likeCount);
+        }
+      } catch (e) {
+        print('Error getting updated like status: $e');
+        // In caso di errore, mantieni lo stato ottimistico
+        if (widget.onLikeChanged != null) {
+          widget.onLikeChanged!(isLiked, likeCount);
+        }
+      }
     }
 
     setState(() {
@@ -131,7 +191,8 @@ class _LikeButtonState extends State<LikeButton> with TickerProviderStateMixin {
                   isLiked ? Icons.favorite : Icons.favorite_border,
                   color:
                       isLiked
-                          ? Colors.red
+                          ? Colors
+                              .red[600] // Colore rosso più saturo quando liked
                           : widget.iconColor ??
                               Theme.of(context).colorScheme.onSurface,
                   size: 16,
@@ -173,7 +234,10 @@ class _LikeButtonState extends State<LikeButton> with TickerProviderStateMixin {
                     )
                     : Icon(
                       isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: isLiked ? Colors.red : null,
+                      color:
+                          isLiked
+                              ? Colors.red[600]
+                              : null, // Colore rosso più saturo quando liked
                     ),
           ),
         ),
