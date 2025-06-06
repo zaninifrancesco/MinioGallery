@@ -15,8 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -37,6 +35,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/api/test", "/api/auth/**", "/api/images/view/**", "/api/statistics/**").permitAll() // Allow public access to view images and statistics
+                                // Swagger UI endpoints
+                                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api-docs/**", "/webjars/**").permitAll()
+                                // Root redirects
+                                .requestMatchers("/", "/docs", "/api-docs").permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // Admin only endpoints
                                 .anyRequest().authenticated()
                 )
@@ -60,20 +62,5 @@ public class SecurityConfig {
       @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOriginPatterns("http://localhost:*") // Specify allowed origins
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Specify allowed methods
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
     }
 }

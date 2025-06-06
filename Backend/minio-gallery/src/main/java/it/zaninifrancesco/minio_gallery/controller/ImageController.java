@@ -4,6 +4,15 @@ import it.zaninifrancesco.minio_gallery.dto.ImageResponse;
 import it.zaninifrancesco.minio_gallery.dto.ImageUploadRequest;
 import it.zaninifrancesco.minio_gallery.dto.MessageResponse;
 import it.zaninifrancesco.minio_gallery.service.ImageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +36,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/images")
+@Tag(name = "Gestione Immagini", description = "API per l'upload, visualizzazione e gestione delle immagini")
 public class ImageController {
     
     private static final Logger logger = LoggerFactory.getLogger(ImageController.class);
@@ -39,10 +49,28 @@ public class ImageController {
      * POST /api/images
      */
     @PostMapping
+    @Operation(summary = "Upload immagine", 
+               description = "Carica una nuova immagine nel sistema con titolo, descrizione e tags opzionali")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Immagine caricata con successo",
+                    content = @Content(mediaType = "application/json", 
+                                     schema = @Schema(implementation = ImageResponse.class))),
+        @ApiResponse(responseCode = "400", description = "File non valido o dati mancanti",
+                    content = @Content(mediaType = "application/json",
+                                     examples = @ExampleObject(value = "{\"error\": \"Invalid file format\"}"))),
+        @ApiResponse(responseCode = "401", description = "Non autorizzato",
+                    content = @Content(mediaType = "application/json",
+                                     examples = @ExampleObject(value = "{\"error\": \"Unauthorized\"}")))
+    })
     public ResponseEntity<?> uploadImage(
+            @Parameter(description = "File immagine da caricare", required = true)
             @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Titolo dell'immagine", required = true)
             @RequestParam("title") String title,
+            @Parameter(description = "Descrizione dell'immagine (opzionale)")
             @RequestParam(value = "description", required = false) String description,
+            @Parameter(description = "Lista di tags per l'immagine (opzionale)")
             @RequestParam(value = "tags", required = false) List<String> tags) {
         
         try {
@@ -78,8 +106,20 @@ public class ImageController {
      * GET /api/images?page=0&size=12
      */
     @GetMapping
+    @Operation(summary = "Lista immagini", 
+               description = "Recupera tutte le immagini pubbliche con paginazione")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista immagini recuperata con successo",
+                    content = @Content(mediaType = "application/json", 
+                                     schema = @Schema(implementation = Page.class))),
+        @ApiResponse(responseCode = "500", description = "Errore interno del server",
+                    content = @Content(mediaType = "application/json",
+                                     examples = @ExampleObject(value = "{\"error\": \"Failed to fetch images\"}")))
+    })
     public ResponseEntity<?> getAllImages(
+            @Parameter(description = "Numero della pagina (inizia da 0)", example = "0")
             @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Numero di elementi per pagina", example = "12")
             @RequestParam(defaultValue = "12") int size) {
         
         try {

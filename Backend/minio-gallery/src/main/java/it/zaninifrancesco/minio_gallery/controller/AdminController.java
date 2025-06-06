@@ -4,6 +4,15 @@ import it.zaninifrancesco.minio_gallery.dto.ImageResponse;
 import it.zaninifrancesco.minio_gallery.dto.MessageResponse;
 import it.zaninifrancesco.minio_gallery.dto.UserResponse;
 import it.zaninifrancesco.minio_gallery.service.AdminService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +34,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
+@Tag(name = "Amministrazione", description = "API per la gestione amministrativa del sistema (solo ADMIN)")
+@SecurityRequirement(name = "Bearer Authentication")
 public class AdminController {
     
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
@@ -37,8 +48,23 @@ public class AdminController {
      * GET /api/admin/users?page=0&size=20
      */
     @GetMapping("/users")
+    @Operation(summary = "Lista tutti gli utenti", 
+               description = "Recupera tutti gli utenti registrati nel sistema con paginazione (solo ADMIN)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista utenti recuperata con successo",
+                    content = @Content(mediaType = "application/json", 
+                                     schema = @Schema(implementation = Page.class))),
+        @ApiResponse(responseCode = "403", description = "Accesso negato - solo ADMIN",
+                    content = @Content(mediaType = "application/json",
+                                     examples = @ExampleObject(value = "{\"error\": \"Access denied\"}"))),
+        @ApiResponse(responseCode = "500", description = "Errore interno del server",
+                    content = @Content(mediaType = "application/json",
+                                     examples = @ExampleObject(value = "{\"error\": \"Failed to fetch users\"}")))
+    })
     public ResponseEntity<?> getAllUsers(
+            @Parameter(description = "Numero della pagina (inizia da 0)", example = "0")
             @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Numero di elementi per pagina", example = "20")
             @RequestParam(defaultValue = "20") int size) {
         try {
             logger.info("Admin requesting all users - page: {}, size: {}", page, size);

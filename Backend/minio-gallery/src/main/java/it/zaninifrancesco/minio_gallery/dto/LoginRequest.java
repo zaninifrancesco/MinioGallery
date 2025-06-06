@@ -1,14 +1,19 @@
 package it.zaninifrancesco.minio_gallery.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
+@Schema(description = "Richiesta di login utente")
 public class LoginRequest {
     
+    @Schema(description = "Nome utente (alternativo a email)", example = "mario.rossi")
     private String username;
     
     @NotBlank(message = "Password is required")
+    @Schema(description = "Password dell'utente", example = "password123", required = true)
     private String password;
 
+    @Schema(description = "Email utente (alternativo a username)", example = "mario.rossi@example.com")
     private String email; 
     
     // Constructors
